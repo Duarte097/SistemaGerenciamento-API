@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.example.sistema_gerenciamento_api.dto.loginDto.LoginRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -97,6 +100,9 @@ public class User {
 
     public void setUltimoLogin(LocalDateTime ultimoLogin) { 
         this.ultimoLogin = ultimoLogin;
+    }
+    public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder){ 
+        return passwordEncoder.matches(loginRequest.password(), this.senha);
     }
 
 }
