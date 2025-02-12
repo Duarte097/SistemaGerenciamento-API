@@ -2,6 +2,7 @@ package com.example.sistema_gerenciamento_api.entity;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,11 +10,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.sistema_gerenciamento_api.dto.loginDto.LoginRequest;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 
@@ -27,7 +33,7 @@ public class User {
     private UUID id_usuarios;
 
     @Column(nullable = false, length = 100)
-    private String nome;
+    private String username;
 
     @Column(nullable = false, unique = true, length = 100)
     private String email;
@@ -40,6 +46,14 @@ public class User {
 
     @Column
     private LocalDateTime ultimoLogin;
+    
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "tb_users_roles",
+        joinColumns = @JoinColumn(name = "id_usuarios"),
+        inverseJoinColumns = @JoinColumn(name = "id_roles")
+    )
+    private Set<Role> roles;
 
     public User(){
 
@@ -47,7 +61,7 @@ public class User {
 
     public User(UUID id_usuarios, String nome, String email, String senha, Instant data_criacao, LocalDateTime ultimoLogin) {
         this.id_usuarios = id_usuarios;
-        this.nome = nome;
+        this.username = nome;
         this.email = email;
         this.senha = senha;
         this.data_criacao = data_criacao;
@@ -63,11 +77,11 @@ public class User {
     }
 
     public String getNome() {
-        return nome;
+        return username;
     }
 
     public void setNome(String nome) {
-        this.nome = nome;
+        this.username = nome;
     }
 
     public String getEmail() {
@@ -101,6 +115,15 @@ public class User {
     public void setUltimoLogin(LocalDateTime ultimoLogin) { 
         this.ultimoLogin = ultimoLogin;
     }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder){ 
         return passwordEncoder.matches(loginRequest.password(), this.senha);
     }

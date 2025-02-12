@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
-@RequestMapping("/v1/users")
+@RequestMapping("/createusers")
 public class UserController {
     
     private UserService userService;
