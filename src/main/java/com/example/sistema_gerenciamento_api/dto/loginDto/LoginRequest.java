@@ -1,5 +1,5 @@
 package com.example.sistema_gerenciamento_api.dto.loginDto;
 
-public record LoginRequest(String nome, String password) {
+public record LoginRequest(String email, String password) {
 
 }

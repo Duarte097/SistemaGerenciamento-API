@@ -14,11 +14,15 @@ import com.example.sistema_gerenciamento_api.dto.loginDto.LoginRequest;
 import com.example.sistema_gerenciamento_api.dto.loginDto.LoginResponse;
 import com.example.sistema_gerenciamento_api.repository.UserRepository;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping
 public class TokenController {
     private final JwtEncoder jwtEncoder;
     private final UserRepository userRepository;
@@ -32,7 +36,7 @@ public class TokenController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        var user = userRepository.findByUsername(loginRequest.nome());
+        var user = userRepository.findByEmail(loginRequest.email());
 
         if (user.isEmpty() || !user.get().isLoginCorrect(loginRequest, bCryptPasswordEncoder)) {
             throw new BadCredentialsException("User or password is invalid!");

@@ -39,7 +39,7 @@ public class AdminUserConfig implements CommandLineRunner {
             throw new RuntimeException("Admin role not found");
         }
 
-        var userAdmin = userRepository.findByUsername("admin");
+        var userAdmin = userRepository.findByEmail("admin@hotmail.com");
 
         userAdmin.ifPresentOrElse(
             (user) -> {
@@ -49,7 +49,7 @@ public class AdminUserConfig implements CommandLineRunner {
                 var user = new User();
                 user.setNome("Admin");
                 user.setEmail("admin@hotmail.com");
-                user.setSenha(passwordEncoder.encode("1234"));
+                user.setSenha(passwordEncoder.encode("1234567"));
                 user.setRoles(Set.of(roleAdmin));
                 user.setData_criacao(Instant.now());
                 user.setUltimoLogin(LocalDateTime.now());

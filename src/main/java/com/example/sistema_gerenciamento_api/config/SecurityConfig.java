@@ -33,9 +33,11 @@ public class SecurityConfig {
     @Value("${jwt.private.key}")
     private RSAPrivateKey privateKey;
     
+    @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize -> authorize
+        http.cors().and()
+        .authorizeHttpRequests(authorize -> authorize
         .requestMatchers(HttpMethod.POST, "/users").permitAll()
         .requestMatchers(HttpMethod.POST, "/login").permitAll()
         .anyRequest().authenticated())
