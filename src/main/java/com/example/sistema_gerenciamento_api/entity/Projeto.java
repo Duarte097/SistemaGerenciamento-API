@@ -14,12 +14,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 
-@Getter
-@Setter
 @Entity
 @Table(name = "tb_projetos")
 public class Projeto {
@@ -48,7 +44,7 @@ public class Projeto {
 
     @ManyToOne
     @JoinColumn(name = "id_usuarios", nullable = false)
-    private User usuarioResponsavel;
+    private User id_usuario_responsavel;
 
     @Column(nullable = false, length = 10)
     private String prioridade;
@@ -56,8 +52,10 @@ public class Projeto {
     @OneToMany(mappedBy = "projeto")
     private List<Atividade> atividades;
 
+    public Projeto() {}
+
     public Projeto(UUID id_projeto, String nome_projeto, String descricao, LocalDateTime dataInicio,
-            LocalDateTime dataFim, String status, LocalDateTime data_criacao, User usuarioResponsavel   , String prioridade,
+            LocalDateTime dataFim, String status, LocalDateTime data_criacao, User id_usuario_responsavel, String prioridade,
             List<Atividade> atividades) {
         this.id_projeto = id_projeto;
         this.nome_projeto = nome_projeto;
@@ -66,7 +64,7 @@ public class Projeto {
         this.dataFim = dataFim;
         this.status = status;
         this.data_criacao = data_criacao;
-        this.usuarioResponsavel = usuarioResponsavel;
+        this.id_usuario_responsavel = id_usuario_responsavel;
         this.prioridade = prioridade;
         this.atividades = atividades;
     }
@@ -83,7 +81,7 @@ public class Projeto {
         return nome_projeto;
     }
 
-    public void setNome(String nome_projeto) {
+    public void setNome_projeto(String nome_projeto) {
         this.nome_projeto = nome_projeto;
     }
 
@@ -117,10 +115,10 @@ public class Projeto {
         this.status = status; 
     }
     public User getUsuarioResponsavel() { 
-        return usuarioResponsavel; 
+        return id_usuario_responsavel; 
     }
-    public void setUsuarioResponsavel(User usuarioResponsavel) { 
-        this.usuarioResponsavel = usuarioResponsavel; 
+    public void setUsuarioResponsavel(User id_usuario_responsavel) { 
+        this.id_usuario_responsavel = id_usuario_responsavel; 
     }
     public LocalDateTime getDataCriacao() { 
         return data_criacao; 
