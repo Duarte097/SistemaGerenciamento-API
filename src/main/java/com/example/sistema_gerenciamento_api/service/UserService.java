@@ -1,6 +1,5 @@
 package com.example.sistema_gerenciamento_api.service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +26,9 @@ public class UserService {
         userDto.nome(), 
         userDto.email(), 
         userDto.senha(), 
-        Instant.now(), null);
+        userDto.perfil(),
+        userDto.data_criacao(),
+        null);
 
         var userSaved = userRepository.save(entity);
         return userSaved.getId_usuarios();

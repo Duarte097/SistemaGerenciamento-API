@@ -1,6 +1,5 @@
 package com.example.sistema_gerenciamento_api.config;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -50,8 +49,9 @@ public class AdminUserConfig implements CommandLineRunner {
                 user.setNome("Admin");
                 user.setEmail("admin@hotmail.com");
                 user.setSenha(passwordEncoder.encode("1234567"));
+                user.setPerfil("ADMIN");
                 user.setRoles(Set.of(roleAdmin));
-                user.setData_criacao(Instant.now());
+                user.setData_criacao(LocalDateTime.now());
                 user.setUltimoLogin(LocalDateTime.now());
                 userRepository.save(user);
             }

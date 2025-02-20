@@ -11,5 +11,5 @@ import com.example.sistema_gerenciamento_api.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
    Optional<User> findByEmail(String email);
-   Optional<User> findById_usuarios(String id_usuarios);
+   //Optional<User> findById(String id_usuarios);
 }

@@ -38,8 +38,17 @@ public class SecurityConfig {
         return http
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.POST, "/users").permitAll()
+            .requestMatchers(HttpMethod.POST, "/users").permitAll() //hasRole("ADMIN")
+            .requestMatchers(HttpMethod.GET, "/users").permitAll() 
+            .requestMatchers(HttpMethod.GET, "/users/{userId}").permitAll() 
+            .requestMatchers(HttpMethod.PUT, "/users/{userId}").permitAll() 
+            .requestMatchers(HttpMethod.DELETE, "/users/{userId}").permitAll() 
             .requestMatchers(HttpMethod.POST, "/login").permitAll()
+            .requestMatchers(HttpMethod.POST, "/projetos").permitAll()
+            .requestMatchers(HttpMethod.GET, "/projetos").permitAll()
+            .requestMatchers(HttpMethod.GET, "/projetos/{projetoId}").permitAll() 
+            .requestMatchers(HttpMethod.PUT, "/projetos/{projetoId}").permitAll() 
+            .requestMatchers(HttpMethod.DELETE, "/projetos/{projetoId}").permitAll() 
             .anyRequest().authenticated()
         )
         .csrf(csrf -> csrf.disable())

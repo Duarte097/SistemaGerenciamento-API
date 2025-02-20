@@ -1,6 +1,5 @@
 package com.example.sistema_gerenciamento_api.entity;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -20,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 
@@ -33,7 +33,7 @@ public class User {
     private UUID id_usuarios;
 
     @Column(nullable = false, length = 100)
-    private String username;
+    private String nome;
 
     @Column(nullable = false, unique = true, length = 100)
     private String email;
@@ -41,8 +41,11 @@ public class User {
     @Column(nullable = false, length = 255)
     private String senha;
 
+    @Column(nullable = false)
+    private String perfil;
+
     @CreationTimestamp
-    private Instant data_criacao;
+    private LocalDateTime data_criacao;
 
     @Column
     private LocalDateTime ultimoLogin;
@@ -53,17 +56,26 @@ public class User {
         joinColumns = @JoinColumn(name = "id_usuarios"),
         inverseJoinColumns = @JoinColumn(name = "id_roles")
     )
+    
     private Set<Role> roles;
+
+    @PrePersist
+    protected void onCreate() {
+        if(this.data_criacao == null){
+            this.data_criacao = LocalDateTime.now();
+        }
+    }
 
     public User(){
 
     }
 
-    public User(UUID id_usuarios, String nome, String email, String senha, Instant data_criacao, LocalDateTime ultimoLogin) {
+    public User(UUID id_usuarios, String nome, String email, String senha, String perfil, LocalDateTime data_criacao, LocalDateTime ultimoLogin ) {
         this.id_usuarios = id_usuarios;
-        this.username = nome;
+        this.nome = nome;
         this.email = email;
         this.senha = senha;
+        this.perfil = perfil;
         this.data_criacao = data_criacao;
         this.ultimoLogin = ultimoLogin;
     }
@@ -77,11 +89,11 @@ public class User {
     }
 
     public String getNome() {
-        return username;
+        return nome;
     }
 
     public void setNome(String nome) {
-        this.username = nome;
+        this.nome = nome;
     }
 
     public String getEmail() {
@@ -100,11 +112,11 @@ public class User {
         this.senha = senha;
     }
 
-    public Instant getData_criacao() {
+    public LocalDateTime getData_criacao() {
         return data_criacao;
     }
 
-    public void setData_criacao(Instant data_criacao) {
+    public void setData_criacao(LocalDateTime data_criacao) {
         this.data_criacao = data_criacao;
     }
 
@@ -122,6 +134,14 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getPerfil() {
+        return perfil;
+    }
+
+    public void setPerfil(String perfil) {
+        this.perfil = perfil;
     }
 
     public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder){ 

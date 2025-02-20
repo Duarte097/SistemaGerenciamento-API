@@ -1,8 +1,5 @@
 package com.example.sistema_gerenciamento_api.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.sistema_gerenciamento_api.dto.userDto.CreateUserDto;
 import com.example.sistema_gerenciamento_api.dto.userDto.UpdateUserDto;
 import com.example.sistema_gerenciamento_api.entity.Role;
@@ -10,89 +7,89 @@ import com.example.sistema_gerenciamento_api.entity.User;
 import com.example.sistema_gerenciamento_api.repository.RoleRepository;
 import com.example.sistema_gerenciamento_api.repository.UserRepository;
 import com.example.sistema_gerenciamento_api.service.UserService;
-
 import jakarta.transaction.Transactional;
-import lombok.experimental.var;
-import java.util.List;
-import java.util.Set;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
-
-
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
-@RequestMapping("/createusers")
+@RequestMapping("/users")
 public class UserController {
-    
+
     private final UserService userService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder, UserRepository userRepository) {
+    public UserController(UserService userService, RoleRepository roleRepository, 
+                          BCryptPasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
     }
-    @PostMapping("/users")
+
+    @PostMapping
     @Transactional
-    public ResponseEntity<Void> createUser(@RequestBody CreateUserDto userDto){
-        @SuppressWarnings("deprecation")
-        var basicRole = roleRepository.findByName(Role.Values.BASIC.name());
+    public ResponseEntity<String> createUser(@RequestBody CreateUserDto userDto) {
+        if (userDto.senha() == null || userDto.senha().isEmpty()) {
+            return ResponseEntity.badRequest().body("Senha não pode ser vazia.");
+        }
 
-        @SuppressWarnings("deprecation")
+        String roleName = (userDto.role() != null && !userDto.role().isEmpty()) ? userDto.role() : Role.Values.USUARIO.name();
+        
+        // Obtém a Role do banco
+        var role = roleRepository.findByName(roleName);
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role inválida.");
+        }
+
+        // Cria o usuário
         var userId = userService.createUser(userDto);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao criar usuário.");
+        }
 
-        @SuppressWarnings("deprecation")
+        // Instancia e salva o usuário
         var user = new User();
         user.setId_usuarios(userId);
         user.setNome(userDto.nome());
         user.setEmail(userDto.email());
         user.setSenha(passwordEncoder.encode(userDto.senha()));
-        user.setRoles(Set.of(basicRole));
+        user.setPerfil(userDto.perfil());
+        user.setData_criacao(userDto.data_criacao());
+        user.setRoles(Set.of(role));
         userRepository.save(user);
-    
-        //return ResponseEntity.created(URI.create("/v1/users/" + userId.toString())).build();
-        return ResponseEntity.ok().build();
+
+        System.out.println("Data de criação: " + user.getData_criacao());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário criado com sucesso! ID: " + userId);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable("userId") String userId){
-        @SuppressWarnings("deprecation")
-        var user = userService.getUserById(userId);
-
-        if(user.isPresent()){
-            return ResponseEntity.ok(user.get());
-        }else{
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<User> getUserById(@PathVariable String userId) {
+        Optional<User> user = userService.getUserById(userId);
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> listUsers(){
-        @SuppressWarnings("deprecation")
-        var user = userService.listUsers();
-
-        return ResponseEntity.ok(user);
+    public ResponseEntity<List<User>> listUsers() {
+        return ResponseEntity.ok(userService.listUsers());
     }
 
-    @PutMapping("{userId}")
-    public ResponseEntity<Void> updateById(@PathVariable("userId") String userId,
-                                           @RequestBody UpdateUserDto updateUserDto){
+    @PutMapping("/{userId}")
+    public ResponseEntity<Void> updateById(@PathVariable String userId,
+                                           @RequestBody UpdateUserDto updateUserDto) {
         userService.updateUserDto(userId, updateUserDto);
         return ResponseEntity.noContent().build();
     }
+
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteById(@PathVariable("userId") String userId){
+    public ResponseEntity<Void> deleteById(@PathVariable String userId) {
         userService.deleteById(userId);
         return ResponseEntity.noContent().build();
     }

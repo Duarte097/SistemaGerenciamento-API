@@ -10,5 +10,6 @@ import com.example.sistema_gerenciamento_api.entity.Projeto;
 
 @Repository
 public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
-    Optional<Projeto> findByNome_projeto(String nome_projeto);
+    Optional<Projeto> findByNomeProjeto(String nomeProjeto);
+
  }

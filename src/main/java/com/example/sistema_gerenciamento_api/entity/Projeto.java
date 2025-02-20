@@ -24,8 +24,8 @@ public class Projeto {
     @Column(name = "id_projeto")
     private UUID id_projeto;
 
-    @Column(nullable = false, length = 100)
-    private String nome_projeto;
+    @Column(nullable = false, length = 100, name = "nome_projeto")
+    private String nomeProjeto;
 
     @Column(columnDefinition = "TEXT")
     private String descricao;
@@ -54,11 +54,11 @@ public class Projeto {
 
     public Projeto() {}
 
-    public Projeto(UUID id_projeto, String nome_projeto, String descricao, LocalDateTime dataInicio,
+    public Projeto(UUID id_projeto, String nomeProjeto, String descricao, LocalDateTime dataInicio,
             LocalDateTime dataFim, String status, LocalDateTime data_criacao, User id_usuario_responsavel, String prioridade,
             List<Atividade> atividades) {
         this.id_projeto = id_projeto;
-        this.nome_projeto = nome_projeto;
+        this.nomeProjeto = nomeProjeto;
         this.descricao = descricao;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
@@ -77,12 +77,12 @@ public class Projeto {
         this.id_projeto = id_projeto;
     }
 
-    public String getNome_projeto() {
-        return nome_projeto;
+    public String getNomeProjeto() {
+        return nomeProjeto;
     }
 
-    public void setNome_projeto(String nome_projeto) {
-        this.nome_projeto = nome_projeto;
+    public void setNomeProjeto(String nomeProjeto) {
+        this.nomeProjeto = nomeProjeto;
     }
 
 

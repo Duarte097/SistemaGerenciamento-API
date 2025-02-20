@@ -2,6 +2,7 @@ package com.example.sistema_gerenciamento_api.controllers;
 
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -10,8 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt; 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +28,7 @@ import com.example.sistema_gerenciamento_api.service.ProjetoService;
 
 
 @RestController
-@RequestMapping("/createProjeto")
+@RequestMapping("/projetos")
 public class ProjetoController {
     private final ProjetoService projetoService;
     private final ProjetoRepository projetoRepository;
@@ -35,7 +39,7 @@ public class ProjetoController {
         this.projetoRepository = projetoRepository;
     }
 
-    @PostMapping("/projetos")
+    @PostMapping
     @Transactional
     public ResponseEntity<Void> createProjeto(@RequestBody ProjetoDTO projetoDTO) {
         // Extrai o token JWT do usuário logado
@@ -59,14 +63,13 @@ public class ProjetoController {
         // Cria a entidade Projeto e a preenche com os dados
         Projeto projeto = new Projeto();
         projeto.setId_projeto(projetoId);
-        projeto.setNome_projeto(projetoDTO.nome_projeto());
+        projeto.setNomeProjeto(projetoDTO.nomeProjeto());
         projeto.setDescricao(projetoDTO.descricao());
         projeto.setDataInicio(projetoDTO.dataInicio());
         projeto.setDataFim(projetoDTO.dataFim());
         projeto.setStatus(projetoDTO.status());
         projeto.setPrioridade(projetoDTO.prioridade());
-        
-        // Caso haja outros atributos para setar (como lista de atividades), configure aqui
+        projeto.setUsuarioResponsavel(projetoService.getUserById(userId));
 
         // Salva a entidade no repositório
         projetoRepository.save(projeto);
@@ -80,5 +83,24 @@ public class ProjetoController {
         var projeto = projetoService.listProjetos();
 
         return ResponseEntity.ok(projeto);
+    }
+
+    @GetMapping("/{projetoId}")
+    public ResponseEntity<Projeto> getProjetoById(@PathVariable String projetoId) {
+        Optional<Projeto> projeto = projetoService.getProjetoById(projetoId);
+        return projeto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    
+    @PutMapping("/{projetoId}")
+    public ResponseEntity<Void> updateById(@PathVariable String projetoId,
+                                           @RequestBody ProjetoDTO updateProjetoDto) {
+        projetoService.updateProjetoDto(projetoId, updateProjetoDto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{projetoId}")
+    public ResponseEntity<Void> deleteById(@PathVariable String projetoId) {
+        projetoService.deleteById(projetoId);
+        return ResponseEntity.noContent().build();
     }
 }
