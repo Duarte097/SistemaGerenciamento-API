@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,21 +15,26 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "tb_atividade")
 public class Atividade {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_ativdade")
+    @Column(name = "id_atividade")
     private UUID id_atividade;
+
+    @Version
+    private int version; 
 
     @ManyToOne
     @JoinColumn(name = "projeto_id", nullable = false)
     private Projeto projeto;
 
-    @Column(nullable = false, length = 200)
-    private String nome_atividade;
+    @Column(name = "nome_atividade",nullable = false, length = 200)
+    private String nomeAtividade;
 
     @Column(columnDefinition = "TEXT")
     private String descricao_atividade;
@@ -45,18 +52,21 @@ public class Atividade {
     @JoinColumn(name = "id_usuarios", nullable = false)
     private User user;
 
-    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
     @OneToMany(mappedBy = "atividade")
     private List<LancamentoHoras> subAtividades;
 
-    public Atividade(UUID id_atividade, Projeto projeto, String nome_atividade, String descricao_atividade,
+    public Atividade() {
+    }
+
+    public Atividade(UUID id_atividade, Projeto projeto, String nomeAtividade, String descricao_atividade,
             LocalDateTime dataInicio, LocalDateTime dataFim, String status, User user, LocalDateTime dataCriacao,
             List<LancamentoHoras> subAtividades) {
         this.id_atividade = id_atividade;
         this.projeto = projeto;
-        this.nome_atividade = nome_atividade;
+        this.nomeAtividade = nomeAtividade;
         this.descricao_atividade = descricao_atividade;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
@@ -82,12 +92,12 @@ public class Atividade {
         this.projeto = projeto;
     }
 
-    public String getNome_atividade() {
-        return nome_atividade;
+    public String getNomeAtividade() {
+        return nomeAtividade;
     }
 
-    public void setNome_atividade(String nome_atividade) {
-        this.nome_atividade = nome_atividade;
+    public void setNomeAtividade(String nomeAtividade) {
+        this.nomeAtividade = nomeAtividade;
     }
 
     public String getDescricao_atividade() {

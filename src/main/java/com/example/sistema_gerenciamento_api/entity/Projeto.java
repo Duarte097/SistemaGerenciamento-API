@@ -123,6 +123,9 @@ public class Projeto {
     public LocalDateTime getDataCriacao() { 
         return data_criacao; 
     }
+    public void setDataCriacao(LocalDateTime dataCriacao) {
+        this.data_criacao = dataCriacao;
+    }
     public String getPrioridade() { 
         return prioridade; 
     }
