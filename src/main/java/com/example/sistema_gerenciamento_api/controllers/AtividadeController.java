@@ -11,11 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
-//import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-//import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,28 +23,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.sistema_gerenciamento_api.dto.atividadeDTO.AtividadeDTO;
 
 import com.example.sistema_gerenciamento_api.entity.Atividade;
-import com.example.sistema_gerenciamento_api.entity.Projeto;
-import com.example.sistema_gerenciamento_api.entity.User;
 import com.example.sistema_gerenciamento_api.repository.AtividadeRepository;
-import com.example.sistema_gerenciamento_api.repository.ProjetoRepository;
-import com.example.sistema_gerenciamento_api.repository.UserRepository;
 import com.example.sistema_gerenciamento_api.service.AtividadeService;
-
 @RestController
 @RequestMapping("/atividades")
 public class AtividadeController {
     private final AtividadeService atividadeService;
     private final AtividadeRepository atividadeRepository;
-    private final UserRepository userRepository;
-    private final ProjetoRepository projetoRepository;
     
 
-    public AtividadeController(AtividadeService atividadeService, AtividadeRepository atividadeRepository, 
-                                UserRepository userRepository, ProjetoRepository projetoRepository) {
+    public AtividadeController(AtividadeService atividadeService, AtividadeRepository atividadeRepository) {
         this.atividadeService = atividadeService;
-        this.atividadeRepository = atividadeRepository;
-        this.userRepository = userRepository;
-        this.projetoRepository = projetoRepository;
+        this.atividadeRepository = atividadeRepository;                    
     }
 
     @PostMapping
@@ -67,7 +57,7 @@ public class AtividadeController {
         }
 
         // Buscar projeto pelo ID
-        Optional<Projeto> projeto = projetoRepository.findById(projetoId);
+        /*Optional<Projeto> projeto = projetoRepository.findById(projetoId);
         if (projeto.isEmpty()) {
             return ResponseEntity.badRequest().body("Projeto não encontrado.");
         }
@@ -76,7 +66,7 @@ public class AtividadeController {
         if (usuarioResponsavel.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Usuário responsável não encontrado.");
-        }
+        }*/
 
         // Criação da Atividade
         Atividade atividade = new Atividade();
@@ -86,8 +76,8 @@ public class AtividadeController {
         atividade.setDataInicio(atividadeDTO.dataInicio());
         atividade.setDataFim(atividadeDTO.dataFim());
         atividade.setStatus(atividadeDTO.status());
-        atividade.setProjeto(projeto.get());
-        atividade.setUser(usuarioResponsavel.get());
+        atividade.setProjeto(atividadeService.getProjetoById(projetoId));
+        atividade.setUser(atividadeService.getUserById(userId));
         atividade.setDataCriacao(LocalDateTime.now());
 
         // Salva a atividade no repositório
@@ -105,7 +95,7 @@ public class AtividadeController {
         return ResponseEntity.ok(atividade);
     }
 
-    /*@GetMapping("/{atividadeId}")
+    @GetMapping("/{atividadeId}")
     public ResponseEntity<Atividade> getAtividadeById(@PathVariable String atividadeId) {
         Optional<Atividade> atividade = atividadeService.getAtividadeById(atividadeId);
         return atividade.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -122,6 +112,6 @@ public class AtividadeController {
     public ResponseEntity<Void> deleteById(@PathVariable String atividadeId) {
         atividadeService.deleteById(atividadeId);
         return ResponseEntity.noContent().build();
-    }*/
+    }
 }
 

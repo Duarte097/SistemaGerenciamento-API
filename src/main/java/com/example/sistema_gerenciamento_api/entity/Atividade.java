@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
@@ -74,6 +75,13 @@ public class Atividade {
         this.user = user;
         this.dataCriacao = dataCriacao;
         this.subAtividades = subAtividades;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id_atividade == null) {
+            this.id_atividade = UUID.randomUUID();
+        }
     }
 
     public UUID getId_atividade() {

@@ -41,6 +41,10 @@ public class LancamentoHoras {
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataRegistro = LocalDateTime.now();
 
+    public LancamentoHoras(){
+        
+    }
+
     public LancamentoHoras(UUID id_lancamentos_horas, Atividade atividade, User user, String descricao,
             LocalDateTime dataInicio, LocalDateTime dataFim, LocalDateTime dataRegistro) {
         this.id_lancamentos_horas = id_lancamentos_horas;

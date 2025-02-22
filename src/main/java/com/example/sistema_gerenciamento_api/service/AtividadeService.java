@@ -15,7 +15,6 @@ import com.example.sistema_gerenciamento_api.repository.AtividadeRepository;
 import com.example.sistema_gerenciamento_api.repository.ProjetoRepository;
 import com.example.sistema_gerenciamento_api.repository.UserRepository;
 
-import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class AtividadeService {
@@ -31,27 +30,27 @@ public class AtividadeService {
     
 
     public UUID createAtividade(AtividadeDTO atividadeDto,UUID id,  UUID userId, UUID projetoId) {
-        Projeto projeto = getProjetoById(projetoId);
-        User usuarioResponsavel = getUserById(userId);
+        //Projeto projeto = getProjetoById(projetoId);
+        //User usuarioResponsavel = getUserById(userId);
 
-        Optional<Atividade> atividadeExistente = atividadeRepository.findById(id);
+        /*Optional<Atividade> atividadeExistente = atividadeRepository.findById(id);
         if (!atividadeExistente.isPresent()) {
             throw new EntityNotFoundException("Atividade não encontrada com o ID: " + id);
-        }
+        }*/
 
 
-        System.out.println("ID do usuário recebido: " + userId);
-        System.out.println("ID do projeto recebido: " + projetoId);
+        //System.out.println("ID do usuário recebido: " + userId);
+        //System.out.println("ID do projeto recebido: " + projetoId);
 
         var entity = new Atividade(
             null, 
-            projeto, 
+            null, 
             atividadeDto.nomeAtividade(),             
             atividadeDto.descricao(), 
             atividadeDto.dataInicio(), 
             atividadeDto.dataFim(),
             atividadeDto.status(), 
-            usuarioResponsavel,
+            null,
             LocalDateTime.now(),
             null
         );

@@ -40,22 +40,20 @@ public class AdminUserConfig implements CommandLineRunner {
 
         var userAdmin = userRepository.findByEmail("admin@hotmail.com");
 
-        userAdmin.ifPresentOrElse(
-            (user) -> {
-                System.out.println("User admin already exists");
-            }, 
-            () -> {
-                var user = new User();
-                user.setNome("Admin");
-                user.setEmail("admin@hotmail.com");
-                user.setSenha(passwordEncoder.encode("1234567"));
-                user.setPerfil("ADMIN");
-                user.setRoles(Set.of(roleAdmin));
-                user.setData_criacao(LocalDateTime.now());
-                user.setUltimoLogin(LocalDateTime.now());
-                userRepository.save(user);
-            }
-        );
+        if(userAdmin.isEmpty()){
+            var user = new User();
+            user.setNome("Admin");
+            user.setEmail("admin@hotmail.com");
+            user.setSenha(passwordEncoder.encode("1234567"));
+            user.setPerfil("ADMIN");
+            user.setRoles(Set.of(roleAdmin));
+            user.setData_criacao(LocalDateTime.now());
+            user.setUltimoLogin(LocalDateTime.now());
+            userRepository.save(user);
+            System.out.println("Usuário admin criado.");
+        }else {
+            System.out.println("Admin user already exists.");
+        }
     }
 
 }
