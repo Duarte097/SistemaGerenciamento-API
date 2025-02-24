@@ -6,9 +6,6 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sistema_gerenciamento_api.dto.lancamentoHorasDTO.LancamentoHorasDTO;
+import com.example.sistema_gerenciamento_api.entity.Atividade;
 import com.example.sistema_gerenciamento_api.entity.LancamentoHoras;
+import com.example.sistema_gerenciamento_api.entity.User;
+import com.example.sistema_gerenciamento_api.repository.AtividadeRepository;
 import com.example.sistema_gerenciamento_api.repository.LancamentoHorasRepository;
+import com.example.sistema_gerenciamento_api.repository.UserRepository;
 import com.example.sistema_gerenciamento_api.service.LacamentoHorasService;
 
 @RestController
@@ -29,32 +30,50 @@ import com.example.sistema_gerenciamento_api.service.LacamentoHorasService;
 public class LancamentoHorasController {
     private final LacamentoHorasService lancamentoHorasService;
     private final LancamentoHorasRepository lancamentoHorasRepository;
+    private final UserRepository userRepository;
+    private final AtividadeRepository atividadeRepository;
     
 
-    public LancamentoHorasController(LacamentoHorasService lancamentoHorasService, LancamentoHorasRepository lancamentoHorasRepository) {
+    public LancamentoHorasController(LacamentoHorasService lancamentoHorasService, LancamentoHorasRepository lancamentoHorasRepository,
+                                    UserRepository userRepository, AtividadeRepository atividadeRepository) {
         this.lancamentoHorasService = lancamentoHorasService;
         this.lancamentoHorasRepository = lancamentoHorasRepository;
+        this.userRepository = userRepository;
+        this.atividadeRepository = atividadeRepository;
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity<Void> createLancamentoHoras(@RequestBody LancamentoHorasDTO lancamentoHorasDTO) {
+    public ResponseEntity<String> createLancamentoHoras(@RequestBody LancamentoHorasDTO lancamentoHorasDTO) {
         // Extrai o token JWT do usuário logado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication.getPrincipal() instanceof Jwt)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
-        Jwt jwt = (Jwt) authentication.getPrincipal();
+        Jwt jwt = (Jwt) authentication.getPrincipal();*/
         // Supondo que o ID do usuário esteja armazenado na claim "sub"
         UUID userId;
         UUID atividadeId;
         try {
-            userId = UUID.fromString(jwt.getSubject());
-            atividadeId = UUID.fromString(jwt.getClaimAsString("atividadeId"));
+            userId = lancamentoHorasDTO.idUsuario();
+            atividadeId = lancamentoHorasDTO.idAtividade();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
+        Optional<User> usuarioOptional = userRepository.findById(lancamentoHorasDTO.idUsuario());
+        if (usuarioOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Usuário não encontrado.");
+        }
+        User user = usuarioOptional.get();
+
+        // Buscar o projeto no banco de dados
+        Optional<Atividade> atividadeOptional = atividadeRepository.findById(lancamentoHorasDTO.idAtividade());
+        if (atividadeOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Projeto não encontrado.");
+        }
+        Atividade atividade = atividadeOptional.get();
 
         // Chama o serviço para criar o projeto e obter o ID criado
         UUID lancamentoHorasId = lancamentoHorasService.createLancamentoHoras(lancamentoHorasDTO, userId, atividadeId);
@@ -62,8 +81,8 @@ public class LancamentoHorasController {
         // Cria a entidade Projeto e a preenche com os dados
         LancamentoHoras lancamentoHoras = new LancamentoHoras();
         lancamentoHoras.setId_lancamentos_horas(lancamentoHorasId);
-        lancamentoHoras.setUser(lancamentoHorasService.getUserById(userId));
-        lancamentoHoras.setAtividade(lancamentoHorasService.getAtividadeById(atividadeId));
+        lancamentoHoras.setUser(user);
+        lancamentoHoras.setAtividade(atividade);
         lancamentoHoras.setDescricao(lancamentoHorasDTO.descricao());
         lancamentoHoras.setDataInicio(lancamentoHorasDTO.dataInicio());
         lancamentoHoras.setDataFim(lancamentoHorasDTO.dataFim());

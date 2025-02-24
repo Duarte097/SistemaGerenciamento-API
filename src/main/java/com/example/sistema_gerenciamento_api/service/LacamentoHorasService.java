@@ -20,7 +20,6 @@ public class LacamentoHorasService {
     private LancamentoHorasRepository lancamentoHorasRepository;
     private UserRepository userRepository;
     private AtividadeRepository atividadeRepository;
-    //private User user;
 
     public LacamentoHorasService(LancamentoHorasRepository lancamentoHorasRepository, AtividadeRepository atividadeRepository, UserRepository userRepository) {
         this.lancamentoHorasRepository = lancamentoHorasRepository;
@@ -30,7 +29,7 @@ public class LacamentoHorasService {
 
     public UUID createLancamentoHoras(LancamentoHorasDTO lancamentoHorasDTO, UUID userId, UUID atividadeId) {
         User usuarioResponsavel = getUserById(userId);
-        //Atividade atividadeResponsavel = getAtividadeById(atividadeId);
+        Atividade atividade = getAtividadeById(atividadeId);
         
         // Verifica o perfil do usuário
         if (!usuarioResponsavel.getPerfil().equals("ADMIN")) {
@@ -39,8 +38,8 @@ public class LacamentoHorasService {
 
         var entity = new LancamentoHoras(
             null, 
-            null, 
-            null,
+            atividade, 
+            usuarioResponsavel,
             lancamentoHorasDTO.descricao(),
             lancamentoHorasDTO.dataInicio(),
             lancamentoHorasDTO.dataFim(),

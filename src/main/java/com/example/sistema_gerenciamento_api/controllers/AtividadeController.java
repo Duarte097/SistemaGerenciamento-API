@@ -7,10 +7,12 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -101,8 +103,8 @@ public class AtividadeController {
         return atividade.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
     
-    /*@PutMapping("/{atividadeId}")
-    public ResponseEntity<Void> updateById(@PathVariable String atividadeId,
+    @PutMapping("/{atividadeId}")
+    public ResponseEntity<Void> updateAtividadeById(@PathVariable String atividadeId,
                                             @RequestBody AtividadeDTO updateAtividadeDto) {
         try {
             atividadeService.updateAtividadeDto(atividadeId, updateAtividadeDto);
@@ -119,6 +121,6 @@ public class AtividadeController {
         } else {
             throw new RuntimeException("Activity not found");
         }
-    }*/
+    }
 }
 

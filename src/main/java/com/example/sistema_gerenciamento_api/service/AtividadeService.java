@@ -64,14 +64,6 @@ public class AtividadeService {
     }
 
     
-    /*public Optional<Projeto > getProjetoById(String projetoId) {
-        return projetoRepository.findById(UUID.fromString(projetoId));
-     }
-
-    public Optional<User> getUserById(String userId) {
-        return userRepository.findById(UUID.fromString(userId));
-     }*/
-
     public Optional<Atividade> getAtividadeById(String atividadeId) {
        return atividadeRepository.findById(UUID.fromString(atividadeId));
     }
@@ -80,7 +72,7 @@ public class AtividadeService {
         return atividadeRepository.findAll();
     }
 
-    /*public void updateAtividadeDto(String atividadeId, AtividadeDTO updateAtividadeDto) {
+    public void updateAtividadeDto(String atividadeId, AtividadeDTO updateAtividadeDto) {
         Atividade atividadeEntity = atividadeRepository.findById(UUID.fromString(atividadeId))
             .orElseThrow(() -> new RuntimeException("Activity not found"));
     
@@ -112,5 +104,5 @@ public class AtividadeService {
         }else{
             throw new RuntimeException("User not found");
         }
-    }*/
+    }
 }
