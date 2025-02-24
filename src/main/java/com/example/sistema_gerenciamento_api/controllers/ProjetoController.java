@@ -7,9 +7,6 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt; 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sistema_gerenciamento_api.dto.projetoDTO.ProjetoDTO;
 import com.example.sistema_gerenciamento_api.entity.Projeto;
+import com.example.sistema_gerenciamento_api.entity.User;
 import com.example.sistema_gerenciamento_api.repository.ProjetoRepository;
+import com.example.sistema_gerenciamento_api.repository.UserRepository;
 import com.example.sistema_gerenciamento_api.service.ProjetoService;
 
 
@@ -32,30 +31,38 @@ import com.example.sistema_gerenciamento_api.service.ProjetoService;
 public class ProjetoController {
     private final ProjetoService projetoService;
     private final ProjetoRepository projetoRepository;
+    private final UserRepository userRepository;
     
 
-    public ProjetoController(ProjetoService projetoService, ProjetoRepository projetoRepository) {
+    public ProjetoController(ProjetoService projetoService, ProjetoRepository projetoRepository, UserRepository userRepository) {
         this.projetoService = projetoService;
         this.projetoRepository = projetoRepository;
+        this.userRepository = userRepository;
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity<Void> createProjeto(@RequestBody ProjetoDTO projetoDTO) {
+    public ResponseEntity<String> createProjeto(@RequestBody ProjetoDTO projetoDTO) {
         // Extrai o token JWT do usuário logado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication.getPrincipal() instanceof Jwt)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
-        Jwt jwt = (Jwt) authentication.getPrincipal();
+        Jwt jwt = (Jwt) authentication.getPrincipal();*/
         // Supondo que o ID do usuário esteja armazenado na claim "sub"
         UUID userId;
         try {
-            userId = UUID.fromString(jwt.getSubject());
+            userId = projetoDTO.idUsuario();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+        Optional<User> usuarioOptional = userRepository.findById(projetoDTO.idUsuario());
+        if (usuarioOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Usuário não encontrado.");
+        }
+
+        User user = usuarioOptional.get();
 
         // Chama o serviço para criar o projeto e obter o ID criado
         UUID projetoId = projetoService.createProjeto(projetoDTO, userId);
@@ -69,7 +76,7 @@ public class ProjetoController {
         projeto.setDataFim(projetoDTO.dataFim());
         projeto.setStatus(projetoDTO.status());
         projeto.setPrioridade(projetoDTO.prioridade());
-        projeto.setUsuarioResponsavel(projetoService.getUserById(userId));
+        projeto.setUsuarioResponsavel(user);
 
         // Salva a entidade no repositório
         projetoRepository.save(projeto);

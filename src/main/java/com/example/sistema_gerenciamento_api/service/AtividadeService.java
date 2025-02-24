@@ -16,6 +16,7 @@ import com.example.sistema_gerenciamento_api.repository.ProjetoRepository;
 import com.example.sistema_gerenciamento_api.repository.UserRepository;
 
 
+
 @Service
 public class AtividadeService {
         private AtividadeRepository atividadeRepository;
@@ -29,28 +30,19 @@ public class AtividadeService {
     }
     
 
-    public UUID createAtividade(AtividadeDTO atividadeDto,UUID id,  UUID userId, UUID projetoId) {
-        //Projeto projeto = getProjetoById(projetoId);
-        //User usuarioResponsavel = getUserById(userId);
-
-        /*Optional<Atividade> atividadeExistente = atividadeRepository.findById(id);
-        if (!atividadeExistente.isPresent()) {
-            throw new EntityNotFoundException("Atividade não encontrada com o ID: " + id);
-        }*/
-
-
-        //System.out.println("ID do usuário recebido: " + userId);
-        //System.out.println("ID do projeto recebido: " + projetoId);
+    public UUID createAtividade(AtividadeDTO atividadeDto, UUID userId, UUID projetoId) {
+        Projeto projeto = getProjetoById(projetoId);
+        User usuarioResponsavel = getUserById(userId);
 
         var entity = new Atividade(
             null, 
-            null, 
+            projeto, 
             atividadeDto.nomeAtividade(),             
             atividadeDto.descricao(), 
             atividadeDto.dataInicio(), 
             atividadeDto.dataFim(),
             atividadeDto.status(), 
-            null,
+            usuarioResponsavel,
             LocalDateTime.now(),
             null
         );
@@ -59,16 +51,26 @@ public class AtividadeService {
         return atividadeSaved.getId_atividade();
     }
 
-    public User getUserById(UUID userId) {
+     public User getUserById(UUID userId) {
         System.out.println("Buscando usuário com ID: " + userId);
         return userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
     public Projeto getProjetoById(UUID projetoId) {
+        System.out.println("Buscando projeto com ID: " + projetoId);
         return projetoRepository.findById(projetoId)
             .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
     }
+
+    
+    /*public Optional<Projeto > getProjetoById(String projetoId) {
+        return projetoRepository.findById(UUID.fromString(projetoId));
+     }
+
+    public Optional<User> getUserById(String userId) {
+        return userRepository.findById(UUID.fromString(userId));
+     }*/
 
     public Optional<Atividade> getAtividadeById(String atividadeId) {
        return atividadeRepository.findById(UUID.fromString(atividadeId));
@@ -78,34 +80,28 @@ public class AtividadeService {
         return atividadeRepository.findAll();
     }
 
-    public void updateAtividadeDto(String atividadeId, AtividadeDTO updateAtividadeDto){
-        var atividadeExists = atividadeRepository.findById(UUID.fromString(atividadeId));    
-
-        if(atividadeExists.isPresent()){
-            var atividadeEntity = atividadeExists.get();
-
-            if(updateAtividadeDto.nomeAtividade() != null){
-                atividadeEntity.setNomeAtividade(updateAtividadeDto.nomeAtividade());
-            }
-            if(updateAtividadeDto.descricao() != null){
-                atividadeEntity.setDescricao_atividade(updateAtividadeDto.descricao());
-            }
-            if(updateAtividadeDto.dataInicio()!= null){
-                atividadeEntity.setDataInicio(updateAtividadeDto.dataInicio());
-            }
-            if(updateAtividadeDto.dataFim()!= null){
-                atividadeEntity.setDataFim(updateAtividadeDto.dataFim());
-            }
-            if(updateAtividadeDto.status()!= null){
-                atividadeEntity.setStatus(updateAtividadeDto.status());
-            }
-            /*if(updateAtividadeDto.idUsuario()!= null){
-                atividadeEntity.setUser(updateAtividadeDto.idUsuario());
-            }*/
-            atividadeRepository.save(atividadeEntity);
-        }else{
-            throw new RuntimeException("User not found");
+    /*public void updateAtividadeDto(String atividadeId, AtividadeDTO updateAtividadeDto) {
+        Atividade atividadeEntity = atividadeRepository.findById(UUID.fromString(atividadeId))
+            .orElseThrow(() -> new RuntimeException("Activity not found"));
+    
+        if (updateAtividadeDto.nomeAtividade() != null) {
+            atividadeEntity.setNomeAtividade(updateAtividadeDto.nomeAtividade());
         }
+        if (updateAtividadeDto.descricao() != null) {
+            atividadeEntity.setDescricao_atividade(updateAtividadeDto.descricao());
+        }
+        if (updateAtividadeDto.dataInicio() != null) {
+            atividadeEntity.setDataInicio(updateAtividadeDto.dataInicio());
+        }
+        if (updateAtividadeDto.dataFim() != null) {
+            atividadeEntity.setDataFim(updateAtividadeDto.dataFim());
+        }
+        if (updateAtividadeDto.status() != null) {
+            atividadeEntity.setStatus(updateAtividadeDto.status());
+        }
+    
+        // Save variant using the existing entity with the current version
+        atividadeRepository.save(atividadeEntity);
     }
 
     public void deleteById(String atividadeId){
@@ -116,5 +112,5 @@ public class AtividadeService {
         }else{
             throw new RuntimeException("User not found");
         }
-    }
+    }*/
 }
