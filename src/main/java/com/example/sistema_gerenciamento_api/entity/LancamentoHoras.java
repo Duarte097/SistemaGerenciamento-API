@@ -3,6 +3,8 @@ package com.example.sistema_gerenciamento_api.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,9 +34,11 @@ public class LancamentoHoras {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
+    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
     private LocalDateTime dataInicio;
 
+    @JsonFormat(pattern = "HH:mm")
     @Column(nullable = false)
     private LocalDateTime dataFim;
 
