@@ -47,6 +47,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/projetos").permitAll()
             .requestMatchers(HttpMethod.GET, "/projetos").permitAll()
             .requestMatchers(HttpMethod.GET, "/projetos/{projetoId}").permitAll() 
+            .requestMatchers(HttpMethod.GET, "/projetos/{nomeProjeto}").permitAll()
             .requestMatchers(HttpMethod.PUT, "/projetos/{projetoId}").permitAll() 
             .requestMatchers(HttpMethod.DELETE, "/projetos/{projetoId}").permitAll() 
             .requestMatchers(HttpMethod.POST, "/atividades").permitAll()

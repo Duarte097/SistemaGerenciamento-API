@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sistema_gerenciamento_api.dto.projetoDTO.ProjetoDTO;
@@ -98,6 +99,15 @@ public class ProjetoController {
     public ResponseEntity<Projeto> getProjetoById(@PathVariable String projetoId) {
         Optional<Projeto> projeto = projetoService.getProjetoById(projetoId);
         return projeto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(params = "nomeProjeto")
+    public ResponseEntity<List<Projeto>> getProjetoByName(@RequestParam String nomeProjeto) {
+        List<Projeto> projetos = projetoService.getProjetoByName(nomeProjeto);
+        if (projetos.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(projetos);
     }
     
     @PutMapping("/{projetoId}")

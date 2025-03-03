@@ -55,6 +55,10 @@ public class ProjetoService {
        return projetoRepository.findById(UUID.fromString(projetoId));
     }
 
+    public List<Projeto> getProjetoByName(String nomeProjeto) {
+        return projetoRepository.findByNomeProjetoContaining(nomeProjeto);
+    }
+
     // Método para obter o usuário por ID
     public User getUserById(UUID userId) {
         return userRepository.findById(userId)
