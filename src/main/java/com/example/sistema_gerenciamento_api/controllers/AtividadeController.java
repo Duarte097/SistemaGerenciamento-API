@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sistema_gerenciamento_api.dto.atividadeDTO.AtividadeDTO;
+import com.example.sistema_gerenciamento_api.dto.atividadeDTO.AtividadeSemLancamentoHorasDTO;
 import com.example.sistema_gerenciamento_api.entity.Atividade;
 import com.example.sistema_gerenciamento_api.entity.Projeto;
 import com.example.sistema_gerenciamento_api.entity.User;
@@ -93,11 +95,23 @@ public class AtividadeController {
 
 
     @GetMapping
-    public ResponseEntity<List<Atividade>> listAtividades(){
-        var atividade = atividadeService.listAtividades();
-
-        return ResponseEntity.ok(atividade);
+    public ResponseEntity<List<AtividadeSemLancamentoHorasDTO>> listAtividade() {
+        List<Atividade> atividades = atividadeService.listAtividades();
+        List<AtividadeSemLancamentoHorasDTO> atividadesDTO = atividades.stream()
+                .map(atividade -> new AtividadeSemLancamentoHorasDTO(
+                        atividade.getId_atividade(),
+                        atividade.getNomeAtividade(),
+                        atividade.getDescricao_atividade(),
+                        atividade.getDataInicio(),
+                        atividade.getDataFim(),
+                        atividade.getStatus(),
+                        atividade.getUser().getId_usuarios(),// Supondo que User tenha um getId()
+                        atividade.getProjeto().getId_projeto()
+                ))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(atividadesDTO);
     }
+
 
     @GetMapping("/{atividadeId}")
     public ResponseEntity<Atividade> getAtividadeById(@PathVariable String atividadeId) {

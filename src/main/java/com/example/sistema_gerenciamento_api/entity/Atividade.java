@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -64,6 +65,7 @@ public class Atividade {
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
     @OneToMany(mappedBy = "atividade")
+    @JsonIgnore
     private List<LancamentoHoras> subAtividades;
 
     public Atividade() {

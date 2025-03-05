@@ -12,6 +12,7 @@ C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\loginDto\LoginRequest.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\loginDto\LoginResponse.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\projetoDTO\ProjetoDTO.java
+C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\projetoDTO\ProjetoSemAtividadesDTO.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\userDto\CreateUserDto.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\userDto\UpdateUserDto.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\entity\Atividade.java
