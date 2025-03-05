@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,9 +19,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-
 @Entity
 @Table(name = "tb_projetos")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Projeto {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -54,6 +56,7 @@ public class Projeto {
     private String prioridade;
 
     @OneToMany(mappedBy = "projeto")
+    @JsonIgnore
     private List<Atividade> atividades;
 
     public Projeto() {}

@@ -4,6 +4,7 @@ package com.example.sistema_gerenciamento_api.controllers;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sistema_gerenciamento_api.dto.projetoDTO.ProjetoDTO;
+import com.example.sistema_gerenciamento_api.dto.projetoDTO.ProjetoSemAtividadesDTO;
 import com.example.sistema_gerenciamento_api.entity.Projeto;
 import com.example.sistema_gerenciamento_api.entity.User;
 import com.example.sistema_gerenciamento_api.repository.ProjetoRepository;
@@ -88,11 +90,30 @@ public class ProjetoController {
         return ResponseEntity.ok().build();
     }
 
+    /* 
     @GetMapping
     public ResponseEntity<List<Projeto>> listProjetos(){
         var projeto = projetoService.listProjetos();
 
         return ResponseEntity.ok(projeto);
+    }*/
+
+    @GetMapping
+    public ResponseEntity<List<ProjetoSemAtividadesDTO>> listProjetos() {
+        List<Projeto> projetos = projetoService.listProjetos();
+        List<ProjetoSemAtividadesDTO> projetosDTO = projetos.stream()
+                .map(projeto -> new ProjetoSemAtividadesDTO(
+                        projeto.getId_projeto(),
+                        projeto.getNomeProjeto(),
+                        projeto.getDescricao(),
+                        projeto.getDataInicio(),
+                        projeto.getDataFim(),
+                        projeto.getStatus(),
+                        projeto.getPrioridade(),
+                        projeto.getUsuarioResponsavel().getId_usuarios()// Supondo que User tenha um getId()
+                ))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(projetosDTO);
     }
 
     @GetMapping("/{projetoId}")
