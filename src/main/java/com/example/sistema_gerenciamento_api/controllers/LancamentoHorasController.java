@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import com.example.sistema_gerenciamento_api.dto.lancamentoHorasDTO.LancamentoHorasDTO;
 import com.example.sistema_gerenciamento_api.entity.Atividade;
 import com.example.sistema_gerenciamento_api.entity.LancamentoHoras;
@@ -46,19 +49,14 @@ public class LancamentoHorasController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> createLancamentoHoras(@RequestBody LancamentoHorasDTO lancamentoHorasDTO) {
-        // Extrai o token JWT do usuário logado
-        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof Jwt)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        
-        Jwt jwt = (Jwt) authentication.getPrincipal();*/
-        // Supondo que o ID do usuário esteja armazenado na claim "sub"
-        UUID userId;
+      public ResponseEntity<String> createLancamentoHoras(@RequestBody LancamentoHorasDTO lancamentoHorasDTO) {
+        // Extrai o userId do token JWT
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+
         UUID atividadeId;
         try {
-            userId = lancamentoHorasDTO.idUsuario();
             atividadeId = lancamentoHorasDTO.idAtividade();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -97,9 +95,13 @@ public class LancamentoHorasController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LancamentoHoras>> listLancamentoHoras(){
-        var lancamentoHoras = lancamentoHorasService.listLancamentoHoras();
+    public ResponseEntity<List<LancamentoHoras>> listLancamentoHoras() {
+        // Extrai o userId do token JWT
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
 
+        List<LancamentoHoras> lancamentoHoras = lancamentoHorasService.listLancamentoHoras(userId);
         return ResponseEntity.ok(lancamentoHoras);
     }
 
@@ -111,14 +113,24 @@ public class LancamentoHorasController {
     
     @PutMapping("/{lancamentoHorasId}")
     public ResponseEntity<Void> updateLanamentoHorasById(@PathVariable String lancamentoHorasId,
-                                           @RequestBody LancamentoHorasDTO updateLancamentoHorasDto) {
-        lancamentoHorasService.updateLancamentoHorasDto(lancamentoHorasId, updateLancamentoHorasDto);
+        @RequestBody LancamentoHorasDTO updateLancamentoHorasDto) {
+        // Extrai o userId do token JWT
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+
+        lancamentoHorasService.updateLancamentoHorasDto(lancamentoHorasId, updateLancamentoHorasDto, userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{lancamentoHorasId}")
     public ResponseEntity<Void> deleteLancamentoHorasById(@PathVariable String lancamentoHorasId) {
-        lancamentoHorasService.deleteById(lancamentoHorasId);
+        // Extrai o userId do token JWT
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+
+        lancamentoHorasService.deleteById(lancamentoHorasId, userId);
         return ResponseEntity.noContent().build();
     }
 }

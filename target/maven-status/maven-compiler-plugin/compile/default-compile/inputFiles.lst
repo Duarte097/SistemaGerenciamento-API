@@ -7,6 +7,7 @@ C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\controllers\TokenController.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\controllers\UserController.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\atividadeDTO\AtividadeDTO.java
+C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\atividadeDTO\AtividadeSemLancamentoHorasDTO.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\atividadeDTO\CriacaoAtividadeDTO.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\lancamentoHorasDTO\LancamentoHorasDTO.java
 C:\sistema-gerenciamento-api\src\main\java\com\example\sistema_gerenciamento_api\dto\loginDto\LoginRequest.java

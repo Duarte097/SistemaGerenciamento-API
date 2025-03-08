@@ -32,7 +32,13 @@ public class AtividadeService {
 
     public UUID createAtividade(AtividadeDTO atividadeDto, UUID userId, UUID projetoId) {
         Projeto projeto = getProjetoById(projetoId);
-        User usuarioResponsavel = getUserById(userId);
+        User usuarioResponsavelProjeto = projeto.getUsuarioResponsavel(); // Responsável pelo projeto
+        User usuarioResponsavelAtividade = getUserById(atividadeDto.idUsuario()); // Responsável pela atividade
+
+        // Verifica se o usuário que está criando a atividade é o responsável pelo projeto
+        if (!usuarioResponsavelProjeto.getId_usuarios().equals(userId)) {
+            throw new RuntimeException("Apenas o responsável pelo projeto pode criar atividades.");
+        }
 
         var entity = new Atividade(
             null, 
@@ -42,7 +48,7 @@ public class AtividadeService {
             atividadeDto.dataInicio(), 
             atividadeDto.dataFim(),
             atividadeDto.status(), 
-            usuarioResponsavel,
+            usuarioResponsavelAtividade,
             LocalDateTime.now(),
             null
         );
@@ -51,7 +57,7 @@ public class AtividadeService {
         return atividadeSaved.getId_atividade();
     }
 
-     public User getUserById(UUID userId) {
+    public User getUserById(UUID userId) {
         System.out.println("Buscando usuário com ID: " + userId);
         return userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -68,14 +74,28 @@ public class AtividadeService {
        return atividadeRepository.findById(UUID.fromString(atividadeId));
     }
 
-    public List<Atividade> listAtividades(){
-        return atividadeRepository.findAll();
+    public List<Atividade> listAtividades(UUID userId) {
+        User usuario = getUserById(userId);
+        if (usuario.getPerfil().equals("ADMIN")) {
+            return atividadeRepository.findAll();
+        } else {
+           return atividadeRepository.findByUsuarioId(userId);
+        }
+        
     }
 
-    public void updateAtividadeDto(String atividadeId, AtividadeDTO updateAtividadeDto) {
+
+    public void updateAtividadeDto(String atividadeId, AtividadeDTO updateAtividadeDto, UUID userId) {
         Atividade atividadeEntity = atividadeRepository.findById(UUID.fromString(atividadeId))
-            .orElseThrow(() -> new RuntimeException("Activity not found"));
-    
+            .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
+
+        Projeto projeto = atividadeEntity.getProjeto();
+        User usuarioResponsavelProjeto = projeto.getUsuarioResponsavel();
+
+        // Verifica se o usuário que está editando a atividade é o responsável pelo projeto
+        if (!usuarioResponsavelProjeto.getId_usuarios().equals(userId)) {
+            throw new RuntimeException("Apenas o responsável pelo projeto pode editar atividades.");
+        }
         if (updateAtividadeDto.nomeAtividade() != null) {
             atividadeEntity.setNomeAtividade(updateAtividadeDto.nomeAtividade());
         }
@@ -96,13 +116,18 @@ public class AtividadeService {
         atividadeRepository.save(atividadeEntity);
     }
 
-    public void deleteById(String atividadeId){
-        var atividadeExists = atividadeRepository.existsById(UUID.fromString(atividadeId));
+    public void deleteById(String atividadeId, UUID userId) {
+        Atividade atividadeEntity = atividadeRepository.findById(UUID.fromString(atividadeId))
+            .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
 
-        if(atividadeExists){
-            userRepository.deleteById(UUID.fromString(atividadeId));
-        }else{
-            throw new RuntimeException("User not found");
+        Projeto projeto = atividadeEntity.getProjeto();
+        User usuarioResponsavelProjeto = projeto.getUsuarioResponsavel();
+
+        // Verifica se o usuário que está deletando a atividade é o responsável pelo projeto
+        if (!usuarioResponsavelProjeto.getId_usuarios().equals(userId)) {
+            throw new RuntimeException("Apenas o responsável pelo projeto pode deletar atividades.");
         }
+
+        atividadeRepository.deleteById(UUID.fromString(atividadeId));
     }
 }

@@ -6,8 +6,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,19 +51,10 @@ public class ProjetoController {
     @Transactional
     public ResponseEntity<String> createProjeto(@RequestBody ProjetoDTO projetoDTO) {
         // Extrai o token JWT do usuário logado
-        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof Jwt)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        
-        Jwt jwt = (Jwt) authentication.getPrincipal();*/
-        // Supondo que o ID do usuário esteja armazenado na claim "sub"
-        UUID userId;
-        try {
-            userId = projetoDTO.idUsuario();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject()); // Obtém o userId do token
+
         Optional<User> usuarioOptional = userRepository.findById(projetoDTO.idUsuario());
         if (usuarioOptional.isEmpty()) {
             return ResponseEntity.badRequest().body("Usuário não encontrado.");
@@ -98,9 +91,13 @@ public class ProjetoController {
         return ResponseEntity.ok(projeto);
     }*/
 
+
     @GetMapping
     public ResponseEntity<List<ProjetoSemAtividadesDTO>> listProjetos() {
-        List<Projeto> projetos = projetoService.listProjetos();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+        List<Projeto> projetos = projetoService.listProjetos(userId);
         List<ProjetoSemAtividadesDTO> projetosDTO = projetos.stream()
                 .map(projeto -> new ProjetoSemAtividadesDTO(
                         projeto.getId_projeto(),
@@ -132,15 +129,20 @@ public class ProjetoController {
     }
     
     @PutMapping("/{projetoId}")
-    public ResponseEntity<Void> updateById(@PathVariable String projetoId,
-                                           @RequestBody ProjetoDTO updateProjetoDto) {
-        projetoService.updateProjetoDto(projetoId, updateProjetoDto);
+    public ResponseEntity<Void> updateById(@PathVariable String projetoId, @RequestBody ProjetoDTO updateProjetoDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+        projetoService.updateProjetoDto(projetoId, updateProjetoDto, userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{projetoId}")
     public ResponseEntity<Void> deleteById(@PathVariable String projetoId) {
-        projetoService.deleteById(projetoId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+        projetoService.deleteById(projetoId, userId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -50,7 +50,7 @@ public class Projeto {
 
     @ManyToOne
     @JoinColumn(name = "id_usuarios", nullable = false)
-    private User id_usuario_responsavel;
+    private User idUsuario;
 
     @Column(nullable = false, length = 10)
     private String prioridade;
@@ -62,7 +62,7 @@ public class Projeto {
     public Projeto() {}
 
     public Projeto(UUID id_projeto, String nomeProjeto, String descricao, LocalDateTime dataInicio,
-            LocalDateTime dataFim, String status, LocalDateTime data_criacao, User id_usuario_responsavel, String prioridade,
+            LocalDateTime dataFim, String status, LocalDateTime data_criacao, User idUsuario, String prioridade,
             List<Atividade> atividades) {
         this.id_projeto = id_projeto;
         this.nomeProjeto = nomeProjeto;
@@ -71,7 +71,7 @@ public class Projeto {
         this.dataFim = dataFim;
         this.status = status;
         this.data_criacao = data_criacao;
-        this.id_usuario_responsavel = id_usuario_responsavel;
+        this.idUsuario = idUsuario;
         this.prioridade = prioridade;
         this.atividades = atividades;
     }
@@ -122,10 +122,10 @@ public class Projeto {
         this.status = status; 
     }
     public User getUsuarioResponsavel() { 
-        return id_usuario_responsavel; 
+        return idUsuario; 
     }
-    public void setUsuarioResponsavel(User id_usuario_responsavel) { 
-        this.id_usuario_responsavel = id_usuario_responsavel; 
+    public void setUsuarioResponsavel(User idUsuario) { 
+        this.idUsuario = idUsuario; 
     }
     public LocalDateTime getDataCriacao() { 
         return data_criacao; 

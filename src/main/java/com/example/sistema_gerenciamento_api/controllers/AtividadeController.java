@@ -6,11 +6,15 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,10 +53,11 @@ public class AtividadeController {
     @PostMapping
     @Transactional
     public ResponseEntity<String> createAtividade(@RequestBody AtividadeDTO atividadeDTO) {
-        UUID userId;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
         UUID projetoId;
         try {
-            userId = atividadeDTO.idUsuario();
             projetoId = atividadeDTO.idProjeto(); 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -96,7 +101,10 @@ public class AtividadeController {
 
     @GetMapping
     public ResponseEntity<List<AtividadeSemLancamentoHorasDTO>> listAtividade() {
-        List<Atividade> atividades = atividadeService.listAtividades();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+        List<Atividade> atividades = atividadeService.listAtividades(userId);
         List<AtividadeSemLancamentoHorasDTO> atividadesDTO = atividades.stream()
                 .map(atividade -> new AtividadeSemLancamentoHorasDTO(
                         atividade.getId_atividade(),
@@ -122,20 +130,31 @@ public class AtividadeController {
     @PutMapping("/{atividadeId}")
     public ResponseEntity<Void> updateAtividadeById(@PathVariable String atividadeId,
                                             @RequestBody AtividadeDTO updateAtividadeDto) {
+        // Extrai o userId do token JWT
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+
         try {
-            atividadeService.updateAtividadeDto(atividadeId, updateAtividadeDto);
+            atividadeService.updateAtividadeDto(atividadeId, updateAtividadeDto, userId);
             return ResponseEntity.noContent().build();
         } catch (ObjectOptimisticLockingFailureException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
     }
 
-    public void deleteById(String atividadeId) {
-        var atividadeExists = atividadeRepository.existsById(UUID.fromString(atividadeId));
-        if (atividadeExists) {
-            atividadeRepository.deleteById(UUID.fromString(atividadeId));
-        } else {
-            throw new RuntimeException("Activity not found");
+    @DeleteMapping("/{atividadeId}") // Adicione a anotação DELETE
+    public ResponseEntity<Void> deleteAtividadeById(@PathVariable String atividadeId) {
+        // Extrai o userId do token JWT
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+
+        try {
+            atividadeService.deleteById(atividadeId, userId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

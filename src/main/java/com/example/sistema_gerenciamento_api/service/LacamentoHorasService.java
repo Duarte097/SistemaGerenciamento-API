@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -30,10 +31,10 @@ public class LacamentoHorasService {
     public UUID createLancamentoHoras(LancamentoHorasDTO lancamentoHorasDTO, UUID userId, UUID atividadeId) {
         User usuarioResponsavel = getUserById(userId);
         Atividade atividade = getAtividadeById(atividadeId);
-        
-        // Verifica o perfil do usuário
-        if (!usuarioResponsavel.getPerfil().equals("ADMIN")) {
-            throw new RuntimeException("Apenas usuários com perfil ADMIN podem criar projetos");
+
+        // Verifica se o usuário que está lançando as horas é o responsável pela atividade
+        if (!atividade.getUser().getId_usuarios().equals(userId)) {
+            throw new RuntimeException("Apenas o responsável pela atividade pode lançar horas.");
         }
 
         var entity = new LancamentoHoras(
@@ -67,16 +68,28 @@ public class LacamentoHorasService {
     }
 
 
-    public List<LancamentoHoras> listLancamentoHoras(){
-        return lancamentoHorasRepository.findAll();
+    public List<LancamentoHoras> listLancamentoHoras(UUID userId) {
+        User usuario = getUserById(userId);
+        if (usuario.getPerfil().equals("ADMIN")) {
+            return lancamentoHorasRepository.findAll();
+        } else {
+            return lancamentoHorasRepository.findAll().stream()
+                .filter(lancamentoHoras -> lancamentoHoras.getUser().getId_usuarios().equals(userId))
+                .collect(Collectors.toList());
+        }
     }
 
-    public void updateLancamentoHorasDto(String lancamentoHorasId, LancamentoHorasDTO updateLancamentoHorasDto){
-        var lancamentoHorasExists = lancamentoHorasRepository.findById(UUID.fromString(lancamentoHorasId));    
+    public void updateLancamentoHorasDto(String lancamentoHorasId, LancamentoHorasDTO updateLancamentoHorasDto, UUID userId) {
+        var lancamentoHorasExists = lancamentoHorasRepository.findById(UUID.fromString(lancamentoHorasId));
 
-        if(lancamentoHorasExists.isPresent()){
+        if (lancamentoHorasExists.isPresent()) {
             var lancamentoHorasEntity = lancamentoHorasExists.get();
+            Atividade atividade = lancamentoHorasEntity.getAtividade();
 
+            // Verifica se o usuário que está editando o lançamento de horas é o responsável pela atividade
+            if (!atividade.getUser().getId_usuarios().equals(userId)) {
+                throw new RuntimeException("Apenas o responsável pela atividade pode editar lançamentos de horas.");
+            }
             if(updateLancamentoHorasDto.descricao() != null){
                 lancamentoHorasEntity.setDescricao(updateLancamentoHorasDto.descricao());
             }
@@ -92,13 +105,20 @@ public class LacamentoHorasService {
         }
     }
 
-    public void deleteById(String lancamentoHorasId){
-        var lancamentoHorasExists = lancamentoHorasRepository.existsById(UUID.fromString(lancamentoHorasId));
+    public void deleteById(String lancamentoHorasId, UUID userId) {
+        var lancamentoHorasExists = lancamentoHorasRepository.findById(UUID.fromString(lancamentoHorasId));
 
-        if(lancamentoHorasExists){
+        if (lancamentoHorasExists.isPresent()) {
+            Atividade atividade = lancamentoHorasExists.get().getAtividade();
+
+            // Verifica se o usuário que está deletando o lançamento de horas é o responsável pela atividade
+            if (!atividade.getUser().getId_usuarios().equals(userId)) {
+                throw new RuntimeException("Apenas o responsável pela atividade pode deletar lançamentos de horas.");
+            }
+
             lancamentoHorasRepository.deleteById(UUID.fromString(lancamentoHorasId));
-        }else{
-            throw new RuntimeException("User not found");
+        } else {
+            throw new RuntimeException("Lançamento de horas não encontrado");
         }
     }
 }

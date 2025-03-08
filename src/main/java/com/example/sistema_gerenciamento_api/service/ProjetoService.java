@@ -26,10 +26,11 @@ public class ProjetoService {
     }
 
     public UUID createProjeto(ProjetoDTO projetoDto, UUID userId) {
-        User usuarioResponsavel = getUserById(userId);
-        
-        // Verifica o perfil do usuário
-        if (!usuarioResponsavel.getPerfil().equals("ADMIN")) {
+        User usuarioCriador = getUserById(userId); // Usuário que está criando o projeto
+        User usuarioResponsavel = getUserById(projetoDto.idUsuario()); // Usuário responsável pelo projeto
+
+        // Verifica se o usuário que está criando o projeto é ADMIN
+        if (!usuarioCriador.getPerfil().equals("ADMIN")) {
             throw new RuntimeException("Apenas usuários com perfil ADMIN podem criar projetos");
         }
 
@@ -59,6 +60,7 @@ public class ProjetoService {
         return projetoRepository.findByNomeProjetoContaining(nomeProjeto);
     }
 
+
     // Método para obter o usuário por ID
     public User getUserById(UUID userId) {
         return userRepository.findById(userId)
@@ -66,16 +68,25 @@ public class ProjetoService {
     }
 
 
-    public List<Projeto> listProjetos(){
-        return projetoRepository.findAll();
+    public List<Projeto> listProjetos(UUID userId) {
+        User usuario = getUserById(userId);
+        if (usuario.getPerfil().equals("ADMIN")) {
+            return projetoRepository.findAll();
+        } else {
+            return projetoRepository.findByUsuarioId(userId);
+        }
     }
 
-    public void updateProjetoDto(String projetoId, ProjetoDTO updateProjetoDto){
-        var projetoExists = projetoRepository.findById(UUID.fromString(projetoId));    
+    public void updateProjetoDto(String projetoId, ProjetoDTO updateProjetoDto, UUID userId) {
+        var projetoExists = projetoRepository.findById(UUID.fromString(projetoId));
+        User usuario = getUserById(userId);
 
-        if(projetoExists.isPresent()){
+        if (projetoExists.isPresent()) {
             var projetoEntity = projetoExists.get();
 
+            if (usuario.getPerfil().equals("USER") && !projetoEntity.getUsuarioResponsavel().getId_usuarios().equals(userId)) {
+                throw new RuntimeException("Você não tem permissão para editar este projeto.");
+            }
             if(updateProjetoDto.nomeProjeto() != null){
                 projetoEntity.setNomeProjeto(updateProjetoDto.nomeProjeto());
             }
@@ -100,13 +111,18 @@ public class ProjetoService {
         }
     }
 
-    public void deleteById(String projetoId){
-        var projetoExists = projetoRepository.existsById(UUID.fromString(projetoId));
+    public void deleteById(String projetoId, UUID userId) {
+        var projetoExists = projetoRepository.findById(UUID.fromString(projetoId));
+        User usuario = getUserById(userId);
 
-        if(projetoExists){
-            userRepository.deleteById(UUID.fromString(projetoId));
-        }else{
-            throw new RuntimeException("User not found");
+        if (projetoExists.isPresent()) {
+            var projetoEntity = projetoExists.get();
+            if (usuario.getPerfil().equals("USER") && !projetoEntity.getUsuarioResponsavel().getId_usuarios().equals(userId)) {
+                throw new RuntimeException("Você não tem permissão para deletar este projeto.");
+            }
+            projetoRepository.deleteById(UUID.fromString(projetoId));
+        } else {
+            throw new RuntimeException("Projeto não encontrado");
         }
     }
     
