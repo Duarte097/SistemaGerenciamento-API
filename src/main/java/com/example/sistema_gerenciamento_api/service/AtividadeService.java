@@ -36,8 +36,11 @@ public class AtividadeService {
         User usuarioResponsavelProjeto = projeto.getUsuarioResponsavel(); // Responsável pelo projeto
         User usuarioResponsavelAtividade = getUserById(atividadeDto.idUsuario()); // Responsável pela atividade
 
+        if (!projeto.getStatus().equals("EM_ANDAMENTO")) {
+            throw new RuntimeException("Não é possível criar atividades para projetos com status diferente de EM_ANDAMENTO.");
+        }
         // Verifica se o usuário que está criando a atividade é o responsável pelo projeto
-        if (!usuarioResponsavelProjeto.getId_usuarios().equals(userId) || !usuarioCriador.getPerfil().equals("ADMIN")) {
+        if (!usuarioResponsavelProjeto.getId_usuarios().equals(userId) && !usuarioCriador.getPerfil().equals("ADMIN")) {
             throw new RuntimeException("Apenas o responsável pelo projeto ou ADMINs pode criar atividades.");
         }
 

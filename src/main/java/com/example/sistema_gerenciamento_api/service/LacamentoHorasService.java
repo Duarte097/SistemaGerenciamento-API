@@ -32,6 +32,10 @@ public class LacamentoHorasService {
         User usuarioResponsavel = getUserById(userId);
         Atividade atividade = getAtividadeById(atividadeId);
 
+        if (!atividade.getStatus().equals("EM_ANDAMENTO") && !atividade.getStatus().equals("ABERTA")){
+            throw new RuntimeException("Não é possível criar atividades para projetos com status diferente de EM_ANDAMENTO.");
+        }
+
         // Verifica se o usuário que está lançando as horas é o responsável pela atividade
         if (!atividade.getUser().getId_usuarios().equals(userId)) {
             throw new RuntimeException("Apenas o responsável pela atividade pode lançar horas.");
