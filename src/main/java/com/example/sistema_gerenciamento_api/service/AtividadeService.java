@@ -32,12 +32,13 @@ public class AtividadeService {
 
     public UUID createAtividade(AtividadeDTO atividadeDto, UUID userId, UUID projetoId) {
         Projeto projeto = getProjetoById(projetoId);
+        User usuarioCriador = getUserById(userId);
         User usuarioResponsavelProjeto = projeto.getUsuarioResponsavel(); // Responsável pelo projeto
         User usuarioResponsavelAtividade = getUserById(atividadeDto.idUsuario()); // Responsável pela atividade
 
         // Verifica se o usuário que está criando a atividade é o responsável pelo projeto
-        if (!usuarioResponsavelProjeto.getId_usuarios().equals(userId)) {
-            throw new RuntimeException("Apenas o responsável pelo projeto pode criar atividades.");
+        if (!usuarioResponsavelProjeto.getId_usuarios().equals(userId) || !usuarioCriador.getPerfil().equals("ADMIN")) {
+            throw new RuntimeException("Apenas o responsável pelo projeto ou ADMINs pode criar atividades.");
         }
 
         var entity = new Atividade(
