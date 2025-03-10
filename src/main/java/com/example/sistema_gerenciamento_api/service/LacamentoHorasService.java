@@ -104,6 +104,9 @@ public class LacamentoHorasService {
             if(updateLancamentoHorasDto.dataFim() != null){
                 lancamentoHorasEntity.setDataFim(updateLancamentoHorasDto.dataFim());
             }
+            if(updateLancamentoHorasDto.dataLancamento() != null){
+                lancamentoHorasEntity.setDataLancamento(updateLancamentoHorasDto.dataLancamento());
+            }
             lancamentoHorasRepository.save(lancamentoHorasEntity);
         }else{
             throw new RuntimeException("User not found");
