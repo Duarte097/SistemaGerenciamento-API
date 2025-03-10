@@ -45,12 +45,17 @@ public class LancamentoHoras {
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataRegistro = LocalDateTime.now();
 
+
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    @Column(nullable = false)
+    private LocalDateTime dataLancamento;
+
     public LancamentoHoras(){
         
     }
 
     public LancamentoHoras(UUID id_lancamentos_horas, Atividade atividade, User user, String descricao,
-            LocalDateTime dataInicio, LocalDateTime dataFim, LocalDateTime dataRegistro) {
+            LocalDateTime dataInicio, LocalDateTime dataFim, LocalDateTime dataRegistro, LocalDateTime dataLancamento) {
         this.id_lancamentos_horas = id_lancamentos_horas;
         this.atividade = atividade;
         this.user = user;
@@ -58,6 +63,7 @@ public class LancamentoHoras {
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
         this.dataRegistro = dataRegistro;
+        this.dataLancamento = dataLancamento;
     }
 
     public UUID getId_lancamentos_horas() {
@@ -114,6 +120,14 @@ public class LancamentoHoras {
 
     public void setDataRegistro(LocalDateTime dataRegistro) {
         this.dataRegistro = dataRegistro;
+    }
+
+    public LocalDateTime getDataLancamento() {
+        return dataLancamento;
+    }
+
+    public void setDataLancamento(LocalDateTime dataLancamento) {
+        this.dataLancamento = dataLancamento;
     }
 
 }

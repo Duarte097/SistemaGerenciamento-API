@@ -48,7 +48,8 @@ public class LacamentoHorasService {
             lancamentoHorasDTO.descricao(),
             lancamentoHorasDTO.dataInicio(),
             lancamentoHorasDTO.dataFim(),
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            lancamentoHorasDTO.dataLancamento()
         );
 
  

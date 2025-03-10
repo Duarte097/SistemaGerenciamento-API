@@ -86,6 +86,7 @@ public class LancamentoHorasController {
         lancamentoHoras.setDescricao(lancamentoHorasDTO.descricao());
         lancamentoHoras.setDataInicio(lancamentoHorasDTO.dataInicio());
         lancamentoHoras.setDataFim(lancamentoHorasDTO.dataFim());
+        lancamentoHoras.setDataLancamento(lancamentoHorasDTO.dataLancamento());
 
         // Salva a entidade no repositório
         lancamentoHorasRepository.save(lancamentoHoras);
