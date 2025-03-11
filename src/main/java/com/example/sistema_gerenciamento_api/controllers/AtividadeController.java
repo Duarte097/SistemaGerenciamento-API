@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sistema_gerenciamento_api.dto.atividadeDTO.AtividadeDTO;
@@ -125,6 +126,15 @@ public class AtividadeController {
     public ResponseEntity<Atividade> getAtividadeById(@PathVariable String atividadeId) {
         Optional<Atividade> atividade = atividadeService.getAtividadeById(atividadeId);
         return atividade.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(params = "nomeAtividade")
+    public ResponseEntity<List<Atividade>> getAtividadeByName(@RequestParam String nomeAtividade) {
+        List<Atividade> atividade = atividadeService.getAtividadeByName(nomeAtividade);
+        if (atividade.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(atividade);
     }
     
     @PutMapping("/{atividadeId}")

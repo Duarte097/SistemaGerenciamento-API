@@ -1,5 +1,6 @@
 package com.example.sistema_gerenciamento_api.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +28,7 @@ public class UserService {
         userDto.email(), 
         userDto.senha(), 
         userDto.perfil(),
-        userDto.data_criacao(),
+        LocalDateTime.now(),
         null);
 
         var userSaved = userRepository.save(entity);
@@ -40,6 +41,10 @@ public class UserService {
 
     public List<User> listUsers(){
         return userRepository.findAll();
+    }
+
+    public List<User> getUserByName(String nome) {
+        return userRepository.findByNomeContaining(nome);
     }
 
     public void updateUserDto(String userId, UpdateUserDto updateUserDto){

@@ -88,6 +88,9 @@ public class AtividadeService {
         
     }
 
+    public List<Atividade> getAtividadeByName(String nomeAtividade) {
+        return atividadeRepository.findByNomeAtividadeContaining(nomeAtividade);
+    }
 
     public void updateAtividadeDto(String atividadeId, AtividadeDTO updateAtividadeDto, UUID userId) {
         Atividade atividadeEntity = atividadeRepository.findById(UUID.fromString(atividadeId))

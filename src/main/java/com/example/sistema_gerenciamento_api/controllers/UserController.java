@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -51,10 +52,10 @@ public class UserController {
         }
 
         // Cria o usuário
-        var userId = userService.createUser(userDto);
-        if (userId == null) {
+        UUID userId  = userService.createUser(userDto);
+        /*if (userId == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao criar usuário.");
-        }
+        }*/
 
         // Instancia e salva o usuário
         var user = new User();
@@ -63,12 +64,11 @@ public class UserController {
         user.setEmail(userDto.email());
         user.setSenha(passwordEncoder.encode(userDto.senha()));
         user.setPerfil(userDto.perfil());
-        user.setData_criacao(userDto.data_criacao());
         user.setRoles(Set.of(role));
         userRepository.save(user);
 
-        System.out.println("Data de criação: " + user.getData_criacao());
-        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário criado com sucesso! ID: " + userId);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{userId}")
@@ -80,6 +80,15 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<User>> listUsers() {
         return ResponseEntity.ok(userService.listUsers());
+    }
+
+    @GetMapping(params = "nome")
+    public ResponseEntity<List<User>> getUserByName(@RequestParam String nome) {
+        List<User> user = userService.getUserByName(nome);
+        if (user.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{userId}")
