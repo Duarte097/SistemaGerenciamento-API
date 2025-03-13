@@ -37,11 +37,23 @@ public class SecurityConfig {
         return http
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/users/**").permitAll() 
+                // SWAGGER ENDPOINTS PERMITIDOS
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/api-docs/**",
+                    "/webjars/**",
+                    "/swagger-resources/**"
+                ).permitAll()
+    
+                // TUAS ROTAS LIVRES
+                .requestMatchers("/users/**").permitAll()
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/projetos/**").permitAll()
                 .requestMatchers("/atividades/**").permitAll()
                 .requestMatchers("/lancamentoHoras/**").permitAll()
+    
+                // OUTRAS ROTAS PROTEGIDAS
                 .anyRequest().authenticated()
             )
             .csrf(csrf -> csrf.disable())
@@ -49,6 +61,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .build();
     }
+    
 
 
     @Bean
