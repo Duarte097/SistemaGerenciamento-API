@@ -16,5 +16,8 @@ public interface AtividadeRepository extends JpaRepository<Atividade, UUID> {
     List<Atividade> findByNomeAtividadeContaining(String nomeAtividade);
     @Query("SELECT a FROM Atividade a WHERE a.user.id_usuarios = :id")
     List<Atividade> findByUsuarioId(@Param("id") UUID id);
+
+    @Query("SELECT a FROM Atividade a WHERE a.status = 'EM_ANDAMENTO' OR a.status = 'ABERTA'")
+    List<Atividade> findAtividadesEmAndamentoOuAberta();
 }
 

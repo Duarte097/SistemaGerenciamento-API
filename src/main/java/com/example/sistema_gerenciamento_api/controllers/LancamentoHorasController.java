@@ -24,10 +24,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import com.example.sistema_gerenciamento_api.dto.lancamentoHorasDTO.LancamentoHorasDTO;
 import com.example.sistema_gerenciamento_api.entity.Atividade;
 import com.example.sistema_gerenciamento_api.entity.LancamentoHoras;
-import com.example.sistema_gerenciamento_api.entity.User;
 import com.example.sistema_gerenciamento_api.repository.AtividadeRepository;
 import com.example.sistema_gerenciamento_api.repository.LancamentoHorasRepository;
-import com.example.sistema_gerenciamento_api.repository.UserRepository;
 import com.example.sistema_gerenciamento_api.service.LacamentoHorasService;
 
 @RestController
@@ -36,21 +34,19 @@ import com.example.sistema_gerenciamento_api.service.LacamentoHorasService;
 public class LancamentoHorasController {
     private final LacamentoHorasService lancamentoHorasService;
     private final LancamentoHorasRepository lancamentoHorasRepository;
-    private final UserRepository userRepository;
     private final AtividadeRepository atividadeRepository;
     
 
     public LancamentoHorasController(LacamentoHorasService lancamentoHorasService, LancamentoHorasRepository lancamentoHorasRepository,
-                                    UserRepository userRepository, AtividadeRepository atividadeRepository) {
+                                     AtividadeRepository atividadeRepository) {
         this.lancamentoHorasService = lancamentoHorasService;
         this.lancamentoHorasRepository = lancamentoHorasRepository;
-        this.userRepository = userRepository;
         this.atividadeRepository = atividadeRepository;
     }
 
     @PostMapping
     @Transactional
-      public ResponseEntity<String> createLancamentoHoras(@RequestBody LancamentoHorasDTO lancamentoHorasDTO) {
+    public ResponseEntity<String> createLancamentoHoras(@RequestBody LancamentoHorasDTO lancamentoHorasDTO) {
         // Extrai o userId do token JWT
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -62,12 +58,6 @@ public class LancamentoHorasController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-
-        Optional<User> usuarioOptional = userRepository.findById(lancamentoHorasDTO.idUsuario());
-        if (usuarioOptional.isEmpty()) {
-            return ResponseEntity.badRequest().body("Usuário não encontrado.");
-        }
-        User user = usuarioOptional.get();
 
         // Buscar o projeto no banco de dados
         Optional<Atividade> atividadeOptional = atividadeRepository.findById(lancamentoHorasDTO.idAtividade());
@@ -82,7 +72,7 @@ public class LancamentoHorasController {
         // Cria a entidade Projeto e a preenche com os dados
         LancamentoHoras lancamentoHoras = new LancamentoHoras();
         lancamentoHoras.setId_lancamentos_horas(lancamentoHorasId);
-        lancamentoHoras.setUser(user);
+        lancamentoHoras.setUser(lancamentoHorasService.getUserById(userId)); // Obtém o usuário pelo ID do token
         lancamentoHoras.setAtividade(atividade);
         lancamentoHoras.setDescricao(lancamentoHorasDTO.descricao());
         lancamentoHoras.setDataInicio(lancamentoHorasDTO.dataInicio());
@@ -124,6 +114,14 @@ public class LancamentoHorasController {
         List<LancamentoHoras> lancamentos = lancamentoHorasService.getLancamentoHorasByAtividadeNome(nomeAtividade, userId);
         return ResponseEntity.ok(lancamentos);
     }
+
+
+    @GetMapping("/atividadesDisponiveis")
+    public List<Atividade> getAtividadesEmAndamentoOuAberta() {
+        return lancamentoHorasService.getAtividadesEmAndamentoOuAberta();
+    }
+
+
     
     @PutMapping("/{lancamentoHorasId}")
     public ResponseEntity<Void> updateLanamentoHorasById(@PathVariable String lancamentoHorasId,

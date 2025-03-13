@@ -89,6 +89,10 @@ public class ProjetoService {
         }
     }
 
+    public List<Projeto> getProjetosEmAndamento() {
+        return projetoRepository.findProjetosEmAndamento();
+    }
+    
     public void updateProjetoDto(String projetoId, ProjetoDTO updateProjetoDto, UUID userId) {
         var projetoExists = projetoRepository.findById(UUID.fromString(projetoId));
         User usuario = getUserById(userId);

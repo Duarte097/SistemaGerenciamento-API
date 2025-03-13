@@ -128,6 +128,11 @@ public class ProjetoController {
         }
         return ResponseEntity.ok(projetos);
     }
+
+    @GetMapping("/emAndamento")
+    public List<Projeto> getProjetosEmAndamento() {
+        return projetoService.getProjetosEmAndamento();
+    }
     
     @GetMapping("/search/user")
     public ResponseEntity<List<Projeto>> getProjetosByNameAndUserId(@RequestParam String nomeProjeto) {

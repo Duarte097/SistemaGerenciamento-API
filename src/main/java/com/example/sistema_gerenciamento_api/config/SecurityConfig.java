@@ -6,7 +6,6 @@ import java.security.interfaces.RSAPublicKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,38 +35,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-        .cors(Customizer.withDefaults())
-        .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.POST, "/users").permitAll() //hasRole("ADMIN")
-            .requestMatchers(HttpMethod.GET, "/users").permitAll() 
-            .requestMatchers(HttpMethod.GET, "/users/{userId}").permitAll() 
-            .requestMatchers(HttpMethod.PUT, "/users/{userId}").permitAll() 
-            .requestMatchers(HttpMethod.DELETE, "/users/{userId}").permitAll() 
-            .requestMatchers(HttpMethod.POST, "/login").permitAll()
-            .requestMatchers(HttpMethod.POST, "/projetos").permitAll()
-            .requestMatchers(HttpMethod.GET, "/projetos").permitAll()
-            .requestMatchers(HttpMethod.GET, "/projetos/{projetoId}").permitAll() 
-            .requestMatchers(HttpMethod.GET,  "/projetos/search/user").permitAll()
-            .requestMatchers(HttpMethod.PUT, "/projetos/{projetoId}").permitAll() 
-            .requestMatchers(HttpMethod.DELETE, "/projetos/{projetoId}").permitAll() 
-            .requestMatchers(HttpMethod.POST, "/atividades").permitAll()
-            .requestMatchers(HttpMethod.GET, "/atividades").permitAll()
-            .requestMatchers(HttpMethod.GET,  "/atividades/search/user").permitAll()
-            .requestMatchers(HttpMethod.GET, "/atividades/{atividadeId}").permitAll() 
-            .requestMatchers(HttpMethod.PUT, "/atividades/{atividadeId}").permitAll() 
-            .requestMatchers(HttpMethod.DELETE, "/atividades/{atividadeId}").permitAll() 
-            .requestMatchers(HttpMethod.POST, "/lancamentoHoras").permitAll()
-            .requestMatchers(HttpMethod.GET, "/lancamentoHoras").permitAll()
-            .requestMatchers(HttpMethod.GET, "/lancamentoHoras/search").permitAll()
-            .requestMatchers(HttpMethod.GET, "/lancamentoHoras/{lancamentoHorasId}").permitAll() 
-            .requestMatchers(HttpMethod.PUT, "/lancamentoHoras/{lancamentoHorasId}").permitAll() 
-            .requestMatchers(HttpMethod.DELETE, "/lancamentoHoras/{lancamentoHorasId}").permitAll() 
-            .anyRequest().authenticated()
-        )
-        .csrf(csrf -> csrf.disable())
-        .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .build();
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/users/**").permitAll() 
+                .requestMatchers("/login").permitAll()
+                .requestMatchers("/projetos/**").permitAll()
+                .requestMatchers("/atividades/**").permitAll()
+                .requestMatchers("/lancamentoHoras/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .csrf(csrf -> csrf.disable())
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .build();
     }
 
 

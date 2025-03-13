@@ -32,7 +32,7 @@ public class LacamentoHorasService {
         User usuarioResponsavel = getUserById(userId);
         Atividade atividade = getAtividadeById(atividadeId);
 
-        if (!atividade.getStatus().equals("EM_ANDAMENTO") && !atividade.getStatus().equals("ABERTA")){
+        if (!atividade.getStatus().equals("EM_ANDAMENTO") && !atividade.getStatus().equals("ABERTA")) {
             throw new RuntimeException("Não é possível criar atividades para projetos com status diferente de EM_ANDAMENTO.");
         }
 
@@ -42,8 +42,8 @@ public class LacamentoHorasService {
         }
 
         var entity = new LancamentoHoras(
-            null, 
-            atividade, 
+            null,
+            atividade,
             usuarioResponsavel,
             lancamentoHorasDTO.descricao(),
             lancamentoHorasDTO.dataInicio(),
@@ -52,7 +52,6 @@ public class LacamentoHorasService {
             lancamentoHorasDTO.dataLancamento()
         );
 
- 
         var lancamentoHorasSaved = lancamentoHorasRepository.save(entity);
         return lancamentoHorasSaved.getId_lancamentos_horas();
     }
@@ -72,17 +71,6 @@ public class LacamentoHorasService {
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
-
-    /*public List<LancamentoHoras> listLancamentoHoras(UUID userId) {
-        User usuario = getUserById(userId);
-        if (usuario.getPerfil().equals("ADMIN")) {
-            return lancamentoHorasRepository.findAll();
-        } else {
-            return lancamentoHorasRepository.findAll().stream()
-                .filter(lancamentoHoras -> lancamentoHoras.getUser().getId_usuarios().equals(userId))
-                .collect(Collectors.toList());
-        }
-    }*/
 
     public List<LancamentoHoras> listLancamentoHoras(UUID userId) {
         User usuario = getUserById(userId);
@@ -114,6 +102,13 @@ public class LacamentoHorasService {
         }
         return lancamentos;
     }
+
+
+    public List<Atividade> getAtividadesEmAndamentoOuAberta() {
+        return atividadeRepository.findAtividadesEmAndamentoOuAberta();
+    }
+
+
     public void updateLancamentoHorasDto(String lancamentoHorasId, LancamentoHorasDTO updateLancamentoHorasDto, UUID userId) {
         var lancamentoHorasExists = lancamentoHorasRepository.findById(UUID.fromString(lancamentoHorasId));
 

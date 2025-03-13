@@ -16,4 +16,6 @@ public interface ProjetoRepository extends JpaRepository<Projeto, UUID> {
     @Query("SELECT p FROM Projeto p WHERE p.idUsuario.id = :id")
     List<Projeto> findByUsuarioId(@Param("id") UUID id);
 
+    @Query("SELECT p FROM Projeto p WHERE p.status = 'EM_ANDAMENTO'")
+    List<Projeto> findProjetosEmAndamento();
 }
