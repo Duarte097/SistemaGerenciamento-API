@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,7 @@ public class AtividadeService {
             null, 
             projeto, 
             atividadeDto.nomeAtividade(),             
-            atividadeDto.descricao(), 
+            atividadeDto.descricao_atividade(), 
             atividadeDto.dataInicio(), 
             atividadeDto.dataFim(),
             atividadeDto.status(), 
@@ -92,6 +93,18 @@ public class AtividadeService {
         return atividadeRepository.findByNomeAtividadeContaining(nomeAtividade);
     }
 
+    public List<Atividade> getAtividadeByNameAndUserId(String nomeAtividade, UUID userId) {
+        User usuario = getUserById(userId);
+        if (usuario.getPerfil().equals("ADMIN")) {
+            return atividadeRepository.findByNomeAtividadeContaining(nomeAtividade);
+        } else {
+            List<Atividade> atividades = atividadeRepository.findByNomeAtividadeContaining(nomeAtividade);
+            return atividades.stream()
+            .filter(atividade -> atividade.getUser().getId_usuarios().equals(userId))
+            .collect(Collectors.toList());
+        }
+    }
+
     public void updateAtividadeDto(String atividadeId, AtividadeDTO updateAtividadeDto, UUID userId) {
         Atividade atividadeEntity = atividadeRepository.findById(UUID.fromString(atividadeId))
             .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
@@ -106,8 +119,8 @@ public class AtividadeService {
         if (updateAtividadeDto.nomeAtividade() != null) {
             atividadeEntity.setNomeAtividade(updateAtividadeDto.nomeAtividade());
         }
-        if (updateAtividadeDto.descricao() != null) {
-            atividadeEntity.setDescricao_atividade(updateAtividadeDto.descricao());
+        if (updateAtividadeDto.descricao_atividade() != null) {
+            atividadeEntity.setDescricao_atividade(updateAtividadeDto.descricao_atividade());
         }
         if (updateAtividadeDto.dataInicio() != null) {
             atividadeEntity.setDataInicio(updateAtividadeDto.dataInicio());

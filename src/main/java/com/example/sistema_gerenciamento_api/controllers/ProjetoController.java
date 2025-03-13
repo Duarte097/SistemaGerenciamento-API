@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,6 +127,23 @@ public class ProjetoController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(projetos);
+    }
+    
+    @GetMapping("/search/user")
+    public ResponseEntity<List<Projeto>> getProjetosByNameAndUserId(@RequestParam String nomeProjeto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            UUID userId = UUID.fromString(jwt.getSubject());
+            List<Projeto> projetos = projetoService.getProjetosByNameAndUserId(nomeProjeto, userId);
+            if (projetos.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(projetos);
+        } else {
+            // Lidar com o caso em que o principal não é um JWT
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
     
     @PutMapping("/{projetoId}")

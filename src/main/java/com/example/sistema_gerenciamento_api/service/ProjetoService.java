@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -59,7 +60,18 @@ public class ProjetoService {
     public List<Projeto> getProjetoByName(String nomeProjeto) {
         return projetoRepository.findByNomeProjetoContaining(nomeProjeto);
     }
-
+    
+    public List<Projeto> getProjetosByNameAndUserId(String nomeProjeto, UUID userId) {
+        User usuario = getUserById(userId);
+        if (usuario.getPerfil().equals("ADMIN")) {
+            return projetoRepository.findByNomeProjetoContaining(nomeProjeto);
+        } else {
+            List<Projeto> projetos = projetoRepository.findByNomeProjetoContaining(nomeProjeto);
+            return projetos.stream()
+            .filter(projeto -> projeto.getUsuarioResponsavel().getId_usuarios().equals(userId))
+            .collect(Collectors.toList());
+        }
+    }
 
     // Método para obter o usuário por ID
     public User getUserById(UUID userId) {

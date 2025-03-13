@@ -73,7 +73,7 @@ public class LacamentoHorasService {
     }
 
 
-    public List<LancamentoHoras> listLancamentoHoras(UUID userId) {
+    /*public List<LancamentoHoras> listLancamentoHoras(UUID userId) {
         User usuario = getUserById(userId);
         if (usuario.getPerfil().equals("ADMIN")) {
             return lancamentoHorasRepository.findAll();
@@ -82,8 +82,38 @@ public class LacamentoHorasService {
                 .filter(lancamentoHoras -> lancamentoHoras.getUser().getId_usuarios().equals(userId))
                 .collect(Collectors.toList());
         }
+    }*/
+
+    public List<LancamentoHoras> listLancamentoHoras(UUID userId) {
+        User usuario = getUserById(userId);
+
+        List<LancamentoHoras> lancamentos;
+        if (usuario.getPerfil().equals("ADMIN")) {
+            lancamentos = lancamentoHorasRepository.findAll();
+        } else {
+            lancamentos = lancamentoHorasRepository.findAll().stream()
+                    .filter(lancamentoHoras -> lancamentoHoras.getUser().getId_usuarios().equals(userId))
+                    .collect(Collectors.toList());
+        }
+        return lancamentos;
     }
 
+    public List<LancamentoHoras> getLancamentoHorasByAtividadeNome(String nomeAtividade, UUID userId) {
+        User usuario = getUserById(userId);
+        List<LancamentoHoras> lancamentos;
+
+        if (usuario.getPerfil().equals("ADMIN")) {
+            lancamentos = lancamentoHorasRepository.findAll().stream()
+                    .filter(lancamento -> lancamento.getAtividade().getNomeAtividade().toLowerCase().contains(nomeAtividade.toLowerCase()))
+                    .collect(Collectors.toList());
+        } else {
+            lancamentos = lancamentoHorasRepository.findAll().stream()
+                    .filter(lancamento -> lancamento.getAtividade().getNomeAtividade().toLowerCase().contains(nomeAtividade.toLowerCase()))
+                    .filter(lancamento -> lancamento.getUser().getId_usuarios().equals(userId))
+                    .collect(Collectors.toList());
+        }
+        return lancamentos;
+    }
     public void updateLancamentoHorasDto(String lancamentoHorasId, LancamentoHorasDTO updateLancamentoHorasDto, UUID userId) {
         var lancamentoHorasExists = lancamentoHorasRepository.findById(UUID.fromString(lancamentoHorasId));
 

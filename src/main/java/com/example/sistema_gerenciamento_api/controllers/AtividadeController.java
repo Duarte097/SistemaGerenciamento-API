@@ -86,7 +86,7 @@ public class AtividadeController {
         Atividade atividade = new Atividade();
         atividade.setId_atividade(atividadeId);
         atividade.setNomeAtividade(atividadeDTO.nomeAtividade());
-        atividade.setDescricao_atividade(atividadeDTO.descricao());
+        atividade.setDescricao_atividade(atividadeDTO.descricao_atividade());
         atividade.setDataInicio(atividadeDTO.dataInicio());
         atividade.setDataFim(atividadeDTO.dataFim());
         atividade.setStatus(atividadeDTO.status());
@@ -137,6 +137,24 @@ public class AtividadeController {
         return ResponseEntity.ok(atividade);
     }
     
+
+
+    @GetMapping("/search/user")
+    public ResponseEntity<List<Atividade>> getAtividadeByNameAndUserId(@RequestParam String nomeAtividade) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        UUID userId = UUID.fromString(jwt.getSubject());
+        List<Atividade> atividades = atividadeService. getAtividadeByNameAndUserId(nomeAtividade, userId);
+        if (atividades.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(atividades);
+        /* } else {
+            // Lidar com o caso em que o principal não é um JWT
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }*/
+    }
+
     @PutMapping("/{atividadeId}")
     public ResponseEntity<Void> updateAtividadeById(@PathVariable String atividadeId,
                                             @RequestBody AtividadeDTO updateAtividadeDto) {
