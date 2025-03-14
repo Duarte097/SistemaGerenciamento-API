@@ -31,53 +31,45 @@ public class SecurityConfig {
 
     @Value("${jwt.private.key}")
     private RSAPrivateKey privateKey;
-    
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-            .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(authorize -> authorize
-                // SWAGGER ENDPOINTS PERMITIDOS
-                .requestMatchers(
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/api-docs/**",
-                    "/webjars/**",
-                    "/swagger-resources/**"
-                ).permitAll()
-    
-                // TUAS ROTAS LIVRES
-                .requestMatchers("/users/**").permitAll()
-                .requestMatchers("/login").permitAll()
-                .requestMatchers("/projetos/**").permitAll()
-                .requestMatchers("/atividades/**").permitAll()
-                .requestMatchers("/lancamentoHoras/**").permitAll()
-    
-                // OUTRAS ROTAS PROTEGIDAS
-                .anyRequest().authenticated()
-            )
-            .csrf(csrf -> csrf.disable())
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .build();
+                .cors(Customizer.withDefaults()) // Ensure CORS is applied
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/api-docs/**",
+                                "/webjars/**",
+                                "/swagger-resources/**")
+                        .permitAll()
+                        .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/projetos/**").permitAll()
+                        .requestMatchers("/atividades/**").permitAll()
+                        .requestMatchers("/lancamentoHoras/**").permitAll()
+                        .anyRequest().authenticated())
+                .csrf(csrf -> csrf.disable())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
     }
-    
-
 
     @Bean
-    public JwtEncoder jwtEncoder(){
+    public JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
         var jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(){
+    public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
